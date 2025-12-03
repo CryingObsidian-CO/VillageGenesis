@@ -1,0 +1,55 @@
+name: Close Issue
+run-name: \#${{ github.event.issue.number }} ${{ github.event.issue.title }}
+
+on:
+  issues:
+    types: [ labeled ]
+
+jobs:
+  close-as-completed:
+    if: github.event.label.name == '👌 完成 | Resolved'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Close as completed
+        uses: actions-cool/issues-helper@v3
+        with:
+          actions: 'close-issue'
+          token: ${{ secrets.BOT }}
+          close-reason: 'completed'
+
+      - name: Remove processing labels
+        uses: actions-cool/issues-helper@v3
+        with:
+          actions: 'remove-labels'
+          token: ${{ secrets.BOT }}
+          labels: '⭕ 等待处理 | Pending,💬 信息补充 | Needs Info,💬 需要复现 | Needs Reproduction,🚧 正在处理 | In Progress,🕑 等待合并 | Awaiting Merge'
+
+  close-as-not-planned:
+    if: github.event.label.name == '❌ 拒绝 | Rejected' ||
+      github.event.label.name == '❌ 重复 | Duplicate' ||
+      github.event.label.name == '❌ 第三方 | Third Party' ||
+      github.event.label.name == '❌ 无计划 | Won''t Fix' ||
+      github.event.label.name == '❌ 已过时 | Obsolete'
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Close as not planned
+        uses: actions-cool/issues-helper@v3
+        with:
+          actions: 'close-issue,create-comment'
+          token: ${{ secrets.BOT }}
+          close-reason: 'not_planned'
+          body: |
+            ❌ 感谢您的反馈！
+            
+            根据评估，这个问题将不会被处理，原因如下：
+            - 标签：${{ github.event.label.name }}
+            
+            如果您认为这是一个错误决定，或者有新的信息要分享，请随时重新打开这个Issue或创建一个新的Issue。
+
+      - name: Remove processing labels
+        uses: actions-cool/issues-helper@v3
+        with:
+          actions: 'remove-labels'
+          token: ${{ secrets.BOT }}
+          labels: '⭕ 等待处理 | Pending,💬 信息补充 | Needs Info,💬 需要复现 | Needs Reproduction,🚧 正在处理 | In Progress,🕑 等待合并 | Awaiting Merge'

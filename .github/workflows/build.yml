@@ -1,0 +1,132 @@
+name: build and test
+on:
+  push:
+    branches:
+      - 'master'     # 主分支
+      - 'release/**' # 发布分支
+      - 'develop'    # 开发分支
+      - 'feature/**' # 功能开发分支
+  pull_request:
+    branches:
+      - 'master'
+      - 'release/**'
+      - 'develop'
+      - 'feature/**'
+  workflow_dispatch:
+    inputs:
+      need_release:
+        description: 'Need release?'
+        required: false
+        default: 'false'
+
+concurrency:
+  group: ci-build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: 📥 Checkout code
+        uses: actions/checkout@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🌐 Set context variables
+        env:
+          GITHUB_BRANCH_NAME: ${{ github.head_ref || '' }}
+          GITHUB_PR_NUMBER: ${{ github.event.number || '' }}
+        run: |
+          echo "GITHUB_BRANCH_NAME=$GITHUB_BRANCH_NAME" >> $GITHUB_ENV
+          echo "GITHUB_PR_NUMBER=$GITHUB_PR_NUMBER" >> $GITHUB_ENV
+
+      - name: ⚙️ Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'zulu'
+          java-version: '21'
+          cache: 'gradle'
+          cache-dependency-path: |
+            gradle/wrapper/gradle-wrapper.properties
+            **/*.gradle
+            **/*.gradle.kts
+
+      - name: ⚙️ Setup Gradle
+        uses: gradle/actions/setup-gradle@v5
+        with:
+          cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
+          cache-read-only: false
+          gradle-home-cache-includes: |
+            caches
+            wrapper
+            notifications
+
+      - name: ⚙️ Validate Gradle Wrapper
+        uses: gradle/actions/wrapper-validation@v5.0.0
+
+      - name: Generate data 📦
+        run: ./gradlew runDatagen
+
+      - name: ✅ Check gen
+        run: |
+          # 检查所有生成的资源和数据文件
+          if git diff --exit-code -- src/main/generated/assets src/main/generated/data; then
+            echo "✅ 生成文件内容一致"
+          else
+            echo "::error::生成文件内容变更需要提交"
+            git add src/main/generated/assets src/main/generated/data
+            git status
+            exit 1
+          fi
+
+      - name: ✅ Run unit tests
+        run: ./gradlew test
+
+      - name: 🔨 Build
+        run: ./gradlew build
+
+      - name: 📁 Get Version
+        id: version
+        run: |
+          VERSION=$(./gradlew -q printVersion)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: 📤 Upload test reports
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v5
+        with:
+          name: test-reports
+          path: |
+            build/reports/tests/test/
+            build/test-results/test/
+          retention-days: 30
+
+      - name: 📤 Upload artifacts
+        if: ${{ success() }}
+        uses: actions/upload-artifact@v5
+        with:
+          name: mod-package
+          path: build/libs/*.jar
+          retention-days: 30
+      - name: 🚀 Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v2
+        if: |
+          (github.ref == 'refs/heads/release' || startsWith(github.ref, 'refs/heads/release/')) ||
+          (github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/heads/develop/')) ||
+          github.event.inputs.need_release == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ env.VERSION }}
+          release_name: "Release ${{ env.VERSION }}"
+          body: |
+            Auto-generated release for version ${{ env.VERSION }}
+            Assets include:
+            - Mod JAR file
+          draft: false
+          prerelease: ${{ github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/heads/develop/') }}
+          files: build/libs/*.jar
+          name_template: "VillageGenesis-${{ env.VERSION }}.jar"

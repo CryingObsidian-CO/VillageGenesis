@@ -1,0 +1,43 @@
+name: Check inactive
+run-name: \#${{ github.event.issue.number }} ${{ github.event.issue.title }}
+
+on:
+  schedule:
+    - cron: "0 0 * * *"  # 每天执行一次
+
+jobs:
+  check-inactive:
+    runs-on: ubuntu-latest
+    steps:
+      # 第一阶段：检查并标记30天未活跃的issue
+      - name: Check and manage inactive issues
+        if: github.event_name == 'schedule'
+        uses: actions-cool/issues-helper@v3
+        with:
+          actions: 'check-inactive,create-comment'
+          token: ${{ secrets.BOT }}
+          inactive-day: 30
+          labels: '💬 需要复现 | Needs Reproduction,💬 信息补充 | Needs Info,🕑 等待合并 | Awaiting Merge'
+          inactive-label: '💤 非活跃 | inactive'
+          body: |
+            💤 这个Issue已经超过30天没有活动，已被标记为非活跃。
+            
+            如果您仍然需要解决这个问题，请提供更多信息或确认问题仍然存在。
+            
+            注意：如果在接下来的14天内没有进一步活动，此Issue将被自动关闭。
+      
+      # 第二阶段：关闭已标记非活跃且再无活动14天的issue
+      - name: Close long inactive issues
+        if: github.event_name == 'schedule'
+        uses: actions-cool/issues-helper@v3
+        with:
+          actions: 'close-issues,create-comment'
+          token: ${{ secrets.BOT }}
+          labels: '💤 非活跃 | inactive'
+          inactive-day: 14
+          body: |
+            🔒 由于这个Issue已经被标记为非活跃且超过14天没有新的活动，因此已被自动关闭。
+            
+            如果您仍然需要解决这个问题，请提供所需信息并重新打开此Issue，或者创建一个新的Issue并引用此问题。
+            
+            感谢您的理解和支持！
