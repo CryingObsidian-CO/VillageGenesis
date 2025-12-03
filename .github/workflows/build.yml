@@ -33,6 +33,10 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: 🔧 Make gradlew executable
+        run: chmod +x ./gradlew
+
+
       - name: 🌐 Set context variables
         env:
           GITHUB_BRANCH_NAME: ${{ github.head_ref || '' }}

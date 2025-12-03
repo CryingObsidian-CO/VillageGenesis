@@ -146,7 +146,6 @@ tasks.register('generateVersionInfo', DefaultTask) {
                      "branch_name" : project.ext.branch.toString(),
                      "is_snapshot" : project.version_snapshot.toString()]
 
-  // Use TaskOutputs to make it compatible with configuration cache
   def versionFile = layout.buildDirectory.file("generated/resources/version.properties")
 
   outputs.file(versionFile)
@@ -250,5 +249,19 @@ idea {
   module {
     downloadSources = true
     downloadJavadoc = true
+  }
+}
+
+// Task to print the current version for CI/CD purposes
+tasks.register('printVersion', DefaultTask) {
+  description 'Prints the current version of the mod'
+  group 'versioning'
+
+  // Capture version for use during task execution
+  def modVersion = project.version
+
+  doLast {
+    // Just print the version to standard output
+    println modVersion
   }
 }
