@@ -1,8 +1,6 @@
 package cn.ykcryobs.vg.config.utils;
 
 import net.neoforged.neoforge.common.ModConfigSpec;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.util.List;
 import java.util.function.Predicate;
@@ -13,8 +11,6 @@ import java.util.function.Predicate;
  * @author VillageGenesis Team
  */
 public class ConfigUtils {
-
-    private static final Logger LOGGER = LogManager.getLogger();
 
     /**
      * 创建布尔值配置项
