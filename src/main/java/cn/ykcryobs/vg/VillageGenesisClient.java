@@ -1,6 +1,5 @@
 package cn.ykcryobs.vg;
 
-import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
@@ -15,6 +14,7 @@ import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 // You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent
 @EventBusSubscriber(modid = VillageGenesis.MOD_ID, value = Dist.CLIENT)
 public class VillageGenesisClient {
+
     public VillageGenesisClient(ModContainer container) {
         // Allows NeoForge to create a config screen for this mod's configs.
         // The config screen is accessed by going to the Mods screen > clicking on your mod > clicking on config.
@@ -25,7 +25,5 @@ public class VillageGenesisClient {
     @SubscribeEvent
     static void onClientSetup(FMLClientSetupEvent event) {
         // Some client setup code
-        VillageGenesis.LOGGER.info("HELLO FROM CLIENT SETUP");
-        VillageGenesis.LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
     }
 }

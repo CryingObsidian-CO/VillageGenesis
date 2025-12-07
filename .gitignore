@@ -13,6 +13,9 @@ out
 *.iml
 .idea
 
+# vscode
+.vscode
+
 # trae
 .trae
 
@@ -28,4 +31,4 @@ run-data
 
 repo
 
-.vscode
+.cache
