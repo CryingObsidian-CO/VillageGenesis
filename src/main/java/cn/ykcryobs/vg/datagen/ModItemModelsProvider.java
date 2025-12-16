@@ -9,6 +9,7 @@ import net.neoforged.neoforge.common.data.ExistingFileHelper;
  * @author llykff
  */
 public class ModItemModelsProvider extends ItemModelProvider {
+
     public ModItemModelsProvider(PackOutput output, ExistingFileHelper existingFileHelper) {
         super(output, VillageGenesis.MOD_ID, existingFileHelper);
     }

@@ -1,4 +1,4 @@
-package cn.ykcryobs.vg.block;
+package cn.ykcryobs.vg.init;
 
 import cn.ykcryobs.vg.VillageGenesis;
 import net.neoforged.neoforge.registries.DeferredRegister;

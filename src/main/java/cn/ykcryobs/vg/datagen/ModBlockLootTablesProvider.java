@@ -1,6 +1,6 @@
 package cn.ykcryobs.vg.datagen;
 
-import cn.ykcryobs.vg.block.ModBlocks;
+import cn.ykcryobs.vg.init.ModBlocks;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;

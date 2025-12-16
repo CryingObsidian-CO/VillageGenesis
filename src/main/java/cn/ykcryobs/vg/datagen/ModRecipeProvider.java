@@ -26,10 +26,6 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         super(output, registries);
     }
 
-    @Override
-    protected void buildRecipes(RecipeOutput recipeOutput) {
-    }
-
     protected static <T extends AbstractCookingRecipe> void modOreCooking(RecipeOutput recipeOutput,
             RecipeSerializer<T> serializer, AbstractCookingRecipe.Factory<T> recipeFactory,
             List<ItemLike> ingredients, RecipeCategory category, ItemLike result, float experience,
@@ -41,5 +37,9 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                             VillageGenesis.MOD_ID + ":" + getItemName(result) + suffix + "_" + getItemName(
                                     itemlike));
         }
+    }
+
+    @Override
+    protected void buildRecipes(RecipeOutput recipeOutput) {
     }
 }

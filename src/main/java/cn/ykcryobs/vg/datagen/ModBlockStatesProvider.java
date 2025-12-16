@@ -9,6 +9,7 @@ import net.neoforged.neoforge.common.data.ExistingFileHelper;
  * @author llykff
  */
 public class ModBlockStatesProvider extends BlockStateProvider {
+
     public ModBlockStatesProvider(PackOutput output, ExistingFileHelper exFileHelper) {
         super(output, VillageGenesis.MOD_ID, exFileHelper);
     }

@@ -3,6 +3,7 @@ package cn.ykcryobs.vg;
 import cn.ykcryobs.vg.config.ClientConfig;
 import cn.ykcryobs.vg.config.CommonConfig;
 import cn.ykcryobs.vg.config.ServerConfig;
+import cn.ykcryobs.vg.init.ModAttachment;
 import com.mojang.logging.LogUtils;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
@@ -28,6 +29,8 @@ public class VillageGenesis {
         modContainer.registerConfig(ModConfig.Type.COMMON, CommonConfig.SPEC);
         modContainer.registerConfig(ModConfig.Type.SERVER, ServerConfig.SPEC);
         modContainer.registerConfig(ModConfig.Type.CLIENT, ClientConfig.SPEC);
+
+        ModAttachment.register(modEventBus);
 
         // Register the commonSetup method for modloading
         modEventBus.addListener(this::commonSetup);
