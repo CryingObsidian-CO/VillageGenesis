@@ -14,7 +14,7 @@ jobs:
         if: github.event_name == 'schedule'
         uses: actions-cool/issues-helper@v3
         with:
-          actions: 'check-inactive,create-comment'
+          actions: 'check-inactive'
           token: ${{ secrets.BOT }}
           inactive-day: 30
           labels: '💬 需要复现 | Needs Reproduction,💬 信息补充 | Needs Info,🕑 等待合并 | Awaiting Merge'
@@ -31,7 +31,7 @@ jobs:
         if: github.event_name == 'schedule'
         uses: actions-cool/issues-helper@v3
         with:
-          actions: 'close-issues,create-comment'
+          actions: 'close-issues'
           token: ${{ secrets.BOT }}
           labels: '💤 非活跃 | inactive'
           inactive-day: 14
