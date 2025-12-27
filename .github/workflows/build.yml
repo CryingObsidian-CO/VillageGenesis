@@ -73,7 +73,7 @@ jobs:
 
       # 根据分支类型决定是否执行完整的数据生成
       - name: Generate data 📦
-        run: ./gradlew runDatagen
+        run: ./gradlew runData
         # 对于PR，仍然需要数据生成以确保兼容性
 
       - name: ✅ Check gen
