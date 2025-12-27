@@ -2,6 +2,7 @@ package cn.ykcryobs.vg.villageSystem;
 
 import cn.ykcryobs.vg.VillageGenesis;
 import cn.ykcryobs.vg.init.ModDataPackRegistries;
+import cn.ykcryobs.vg.utils.BoundingBox2D;
 import cn.ykcryobs.vg.villageSystem.facility.interfaces.IFacilityType;
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
@@ -9,20 +10,20 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.neoforged.neoforge.common.util.INBTSerializable;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.UnknownNullability;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -30,7 +31,7 @@ import java.util.UUID;
  *
  * @author llykff
  */
-public class VillageData implements INBTSerializable<CompoundTag> {
+public class VillageData {
 
     private static final Logger LOGGER = LogUtils.getLogger();
 
@@ -47,13 +48,15 @@ public class VillageData implements INBTSerializable<CompoundTag> {
     // 村庄边界中心点
     private BlockPos centerPos;
     // 村庄边界大小 (半径)
-    private int boundaryRadius;
+    private BoundingBox2D boundingBox;
     // 村庄创建时间
     private long createdTime;
     // 最后更新时间
     private long lastUpdateTime;
     // 村庄发展状态 (发展/衰退/废弃)
     private VillageStatus status;
+    // 村庄村民列表
+    private Set<UUID> villagers;
     // 村庄设施列表
     private Map<IFacilityType, List<VillageFacility>> facilities;
 
@@ -61,103 +64,66 @@ public class VillageData implements INBTSerializable<CompoundTag> {
         this.villageId = null;
         this.villageName = null;
         this.centerPos = null;
-        this.boundaryRadius = 0;
-        this.villageLevel = 1;
+        this.boundingBox = null;
+        this.villageLevel = 0;
         this.villageExp = 0;
         this.population = 0;
         this.createdTime = System.currentTimeMillis();
         this.lastUpdateTime = System.currentTimeMillis();
         this.status = VillageStatus.DEVELOPING;
+        this.villagers = new HashSet<>();
         this.facilities = new HashMap<>();
     }
 
-    /**
-     * 构造函数，创建新的村庄信息
-     *
-     * @param villageId      村庄唯一ID
-     * @param villageName    村庄名称
-     * @param centerPos      村庄中心位置
-     * @param boundaryRadius 村庄边界半径
-     */
-    public VillageData(UUID villageId, String villageName, BlockPos centerPos, int boundaryRadius,
-            int population) {
-        this.villageId = villageId;
-        this.villageName = villageName;
+    public VillageData(BlockPos centerPos, BoundingBox2D boundingBox) {
+        this.villageId = UUID.randomUUID();
+        this.villageName = null;
         this.centerPos = centerPos;
-        this.boundaryRadius = boundaryRadius;
-        this.villageLevel = 1;
+        this.boundingBox = boundingBox;
+        this.villageLevel = 0;
         this.villageExp = 0;
-        this.population = population;
+        this.population = 0;
         this.createdTime = System.currentTimeMillis();
         this.lastUpdateTime = System.currentTimeMillis();
         this.status = VillageStatus.DEVELOPING;
+        this.villagers = new HashSet<>();
         this.facilities = new HashMap<>();
     }
 
-    @Override
-    public @UnknownNullability CompoundTag serializeNBT(HolderLookup.@NotNull Provider provider) {
-        CompoundTag nbt = new CompoundTag();
-        nbt.putUUID("villageId", this.villageId);
-        nbt.putString("villageName", this.villageName);
-        nbt.putInt("villageLevel", this.villageLevel);
-        nbt.putInt("villageExp", this.villageExp);
-        nbt.putInt("population", this.population);
-        nbt.putInt("boundaryRadius", this.boundaryRadius);
-        nbt.putLong("createdTime", this.createdTime);
-        nbt.putLong("lastUpdateTime", System.currentTimeMillis());
-
-        nbt.putInt("centerX", this.centerPos.getX());
-        nbt.putInt("centerY", this.centerPos.getY());
-        nbt.putInt("centerZ", this.centerPos.getZ());
-
-        nbt.putString("status", this.status.name());
-
-        // 保存设施列表
-        ListTag facilityList = new ListTag();
-        for (Map.Entry<IFacilityType, List<VillageFacility>> entry : this.facilities.entrySet()) {
-            IFacilityType facilityType = entry.getKey();
-            List<VillageFacility> facilityInstances = entry.getValue();
-            CompoundTag typeTag = new CompoundTag();
-            typeTag.putString("facilityType", facilityType.getFacilityType());
-            ListTag instanceListTag = new ListTag();
-            for (VillageFacility facility : facilityInstances) {
-                instanceListTag.add(facility.serializeNBT(provider));
-            }
-            typeTag.put("facilityInstances", instanceListTag);
-            facilityList.add(typeTag);
-        }
-
-        nbt.put("facilities", facilityList);
-
-        return nbt;
-    }
-
-    @Override
-    public void deserializeNBT(HolderLookup.Provider provider, CompoundTag nbt) {
+    public static VillageData load(CompoundTag nbt, HolderLookup.Provider provider) {
         HolderLookup.RegistryLookup<IFacilityType> facilityRegistry = provider.lookupOrThrow(
                 ModDataPackRegistries.FACILITY_REGISTRY_KEY);
 
-        this.villageId = nbt.getUUID("villageId");
-        this.villageName = nbt.getString("villageName");
-        this.villageLevel = nbt.getInt("villageLevel");
-        this.villageExp = nbt.getInt("villageExp");
-        this.population = nbt.getInt("population");
-        this.boundaryRadius = nbt.getInt("boundaryRadius");
-        this.createdTime = nbt.getLong("createdTime");
-        this.lastUpdateTime = nbt.getLong("lastUpdateTime");
+        VillageData villageData = new VillageData();
+
+        villageData.villageId = nbt.getUUID("villageId");
+        villageData.villageName = nbt.getString("villageName");
+        villageData.villageLevel = nbt.getInt("villageLevel");
+        villageData.villageExp = nbt.getInt("villageExp");
+        villageData.population = nbt.getInt("population");
+        villageData.boundingBox = BoundingBox2D.deserializeNBT(nbt.getCompound("boundingBox"));
+        villageData.createdTime = nbt.getLong("createdTime");
+        villageData.lastUpdateTime = nbt.getLong("lastUpdateTime");
 
         // 加载中心位置
-        int centerX = nbt.getInt("centerX");
-        int centerY = nbt.getInt("centerY");
-        int centerZ = nbt.getInt("centerZ");
-        this.centerPos = new BlockPos(centerX, centerY, centerZ);
+        villageData.centerPos = BlockPos.of(nbt.getLong("centerPos"));
 
         // 加载村庄状态
         String statusStr = nbt.getString("status");
-        this.status = VillageStatus.valueOf(statusStr);
+        villageData.status = VillageStatus.valueOf(statusStr);
+
+        // 加载村民列表
+        villageData.villagers = new HashSet<>();
+        if (nbt.contains("villagers", Tag.TAG_LIST)) {
+            ListTag villagerList = nbt.getList("villagers", Tag.TAG_STRING);
+            for (Tag tag : villagerList) {
+                StringTag villagerIdTag = (StringTag) tag;
+                villageData.villagers.add(UUID.fromString(villagerIdTag.getAsString()));
+            }
+        }
 
         // 加载设施列表
-        this.facilities = new HashMap<>();
+        villageData.facilities = new HashMap<>();
         if (nbt.contains("facilities", Tag.TAG_LIST)) {
             ListTag facilityList = nbt.getList("facilities", Tag.TAG_COMPOUND);
             for (Tag tag : facilityList) {
@@ -166,7 +132,7 @@ public class VillageData implements INBTSerializable<CompoundTag> {
                 ResourceKey<IFacilityType> facilityTypeKey = ResourceKey.create(
                         ModDataPackRegistries.FACILITY_REGISTRY_KEY,
                         ResourceLocation.fromNamespaceAndPath(VillageGenesis.MOD_ID,
-                                "village/facilities" + typeStr));
+                                "village/facilities/" + typeStr));
                 IFacilityType facilityType = facilityRegistry.get(facilityTypeKey)
                         .map(Holder.Reference::value).orElse(null);
                 if (facilityType == null) {
@@ -181,10 +147,10 @@ public class VillageData implements INBTSerializable<CompoundTag> {
                             facilityType);
                     facilityInstances.add(facility);
                 }
-                this.facilities.put(facilityType, facilityInstances);
+                villageData.facilities.put(facilityType, facilityInstances);
             }
         }
-
+        return villageData;
     }
 
     /**
@@ -330,19 +296,39 @@ public class VillageData implements INBTSerializable<CompoundTag> {
      *
      * @return 边界半径
      */
-    public int getBoundaryRadius() {
-        return this.boundaryRadius;
+    public BoundingBox2D getBoundingBox() {
+        return this.boundingBox;
     }
 
     /**
      * 设置村庄边界半径
      *
-     * @param boundaryRadius 新的边界半径
+     * @param boundingBox 新的边界半径
      */
-    public void setBoundaryRadius(int boundaryRadius) {
-        // TODO 配置边界半径范围
-        this.boundaryRadius = Math.max(10, Math.min(100, boundaryRadius)); // 限制在合理范围内
+    public void setBoundingBox(BoundingBox2D boundingBox) {
+        this.boundingBox = boundingBox; // 限制在合理范围内
         this.markDirty();
+    }
+
+    /**
+     * 检查指定坐标是否在村庄边界内
+     *
+     * @param x 要检查的X坐标
+     * @param z 要检查的Z坐标
+     * @return 是否在边界内
+     */
+    public boolean inVillageBoundary(int x, int z) {
+        return this.boundingBox.inSide(x, z);
+    }
+
+    /**
+     * 检查指定坐标是否在村庄边界内
+     *
+     * @param pos 要检查的位置
+     * @return 是否在边界内
+     */
+    public boolean inVillageBoundary(BlockPos pos) {
+        return this.boundingBox.inSide(pos.getX(), pos.getZ());
     }
 
     /**
@@ -390,7 +376,10 @@ public class VillageData implements INBTSerializable<CompoundTag> {
      * @param facility 要移除的设施
      */
     public void removeFacility(VillageFacility facility) {
-        this.facilities.get(facility.getFacilityType()).remove(facility);
+        List<VillageFacility> list = this.facilities.get(facility.getFacilityType());
+        if (list != null) {
+            list.remove(facility);
+        }
         this.markDirty();
     }
 
@@ -413,27 +402,15 @@ public class VillageData implements INBTSerializable<CompoundTag> {
     }
 
     /**
-     * 检查指定位置是否在村庄边界内
-     *
-     * @param pos 要检查的位置
-     * @return 是否在边界内
-     */
-    public boolean isWithinBoundary(BlockPos pos) {
-        double distance = Math.sqrt(Math.pow(pos.getX() - this.centerPos.getX(), 2) + Math.pow(
-                pos.getZ() - this.centerPos.getZ(), 2));
-        return distance <= this.boundaryRadius;
-    }
-
-    /**
      * 获取村庄信息概览
      *
      * @return 村庄信息字符串
      */
     public String getInfoOverview() {
         return String.format(
-                "村庄: %s (等级%d) - 人口: %d - 状态: %s - 边界: 中心(%d, %d) 半径%d米",
+                "村庄: %s (等级%d) - 人口: %d - 状态: %s - 中心 : (%d, %d) - 边界 : %s",
                 this.villageName, this.villageLevel, this.population, this.status.getDisplayName(),
-                this.centerPos.getX(), this.centerPos.getZ(), this.boundaryRadius);
+                this.centerPos.getX(), this.centerPos.getZ(), this.boundingBox.toString());
     }
 
     /**
@@ -442,6 +419,91 @@ public class VillageData implements INBTSerializable<CompoundTag> {
     private void markDirty() {
         this.lastUpdateTime = System.currentTimeMillis();
         // 注意：由于VillageData实现了INBTSerializable而不是SavedData，这里不需要调用setDirty()
+    }
+
+    /**
+     * 获取所有村庄村民UUID
+     *
+     * @return 所有村民UUID的集合
+     */
+    public Set<UUID> getVillagers() {
+        return villagers;
+    }
+
+    /**
+     * 添加村庄村民
+     *
+     * @param villager 要添加的村民UUID
+     */
+    public void addVillager(UUID villager) {
+        this.villagers.add(villager);
+    }
+
+    /**
+     * 移除村庄村民
+     *
+     * @param villager 要移除的村民UUID
+     */
+    public void removeVillager(UUID villager) {
+        this.villagers.remove(villager);
+    }
+
+    /**
+     * 清空所有村民
+     */
+    public void clearVillagers() {
+        this.villagers.clear();
+    }
+
+    /**
+     * 检查村庄是否包含指定村民
+     *
+     * @param villager 要检查的村民UUID
+     * @return 是否包含该村民
+     */
+    public boolean hasVillager(UUID villager) {
+        return this.villagers.contains(villager);
+    }
+
+    public CompoundTag save(CompoundTag nbt, HolderLookup.Provider provider) {
+        nbt.putUUID("villageId", this.villageId);
+        nbt.putString("villageName", this.villageName);
+        nbt.putInt("villageLevel", this.villageLevel);
+        nbt.putInt("villageExp", this.villageExp);
+        nbt.putInt("population", this.population);
+        nbt.put("boundingBox", this.boundingBox.serializeNBT());
+        nbt.putLong("createdTime", this.createdTime);
+        nbt.putLong("lastUpdateTime", System.currentTimeMillis());
+
+        nbt.putLong("centerPos", this.centerPos.asLong());
+
+        nbt.putString("status", this.status.name());
+
+        // 保存村民列表
+        ListTag villagerList = new ListTag();
+        for (UUID villagerId : this.villagers) {
+            villagerList.add(StringTag.valueOf(villagerId.toString()));
+        }
+        nbt.put("villagers", villagerList);
+
+        // 保存设施列表
+        ListTag facilityList = new ListTag();
+        for (Map.Entry<IFacilityType, List<VillageFacility>> entry : this.facilities.entrySet()) {
+            IFacilityType facilityType = entry.getKey();
+            List<VillageFacility> facilityInstances = entry.getValue();
+            CompoundTag typeTag = new CompoundTag();
+            typeTag.putString("facilityType", facilityType.getFacilityType());
+            ListTag instanceListTag = new ListTag();
+            for (VillageFacility facility : facilityInstances) {
+                instanceListTag.add(facility.serializeNBT(provider));
+            }
+            typeTag.put("facilityInstances", instanceListTag);
+            facilityList.add(typeTag);
+        }
+
+        nbt.put("facilities", facilityList);
+
+        return nbt;
     }
 
     /**

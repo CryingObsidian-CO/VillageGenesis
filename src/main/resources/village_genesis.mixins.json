@@ -2,7 +2,10 @@
   "required": true,
   "package": "cn.ykcryobs.vg.mixin",
   "compatibilityLevel": "JAVA_21",
-  "mixins": [],
+  "mixins": [
+    "ChunkGeneratorMixin",
+    "VillagerMixin"
+  ],
   "injectors": {
     "defaultRequire": 1
   },

@@ -85,6 +85,7 @@ public interface IFacilityType {
      * @return 设施描述
      */
     default Component getDescriptionKey() {
-        return Component.translatable(this.getDisplayKey().getString() + ".description");
+        return Component.translatable(
+                "village.village_genesis.facility." + this.getFacilityType() + ".description");
     }
 }
