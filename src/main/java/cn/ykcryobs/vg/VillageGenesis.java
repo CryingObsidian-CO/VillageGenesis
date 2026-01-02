@@ -4,22 +4,30 @@ import cn.ykcryobs.vg.config.ClientConfig;
 import cn.ykcryobs.vg.config.CommonConfig;
 import cn.ykcryobs.vg.config.ServerConfig;
 import cn.ykcryobs.vg.init.ModAttachment;
+import cn.ykcryobs.vg.init.ModDataComponents;
+import cn.ykcryobs.vg.init.ModItems;
 import com.mojang.logging.LogUtils;
+import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
-import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import org.slf4j.Logger;
 
 // The value here should match an entry in the META-INF/neoforge.mods.toml file
 @Mod(VillageGenesis.MOD_ID)
+@EventBusSubscriber(modid = VillageGenesis.MOD_ID)
 public class VillageGenesis {
 
     // Define mod id in a common place for everything to reference
     public static final String MOD_ID = "village_genesis";
     // Directly reference a slf4j logger
     public static final Logger LOGGER = LogUtils.getLogger();
+
+    public static Level level;
 
     // The constructor for the mod class is the first code that is run when your mod is loaded.
     // FML will recognize some parameter types like IEventBus or ModContainer and pass them in automatically.
@@ -31,12 +39,23 @@ public class VillageGenesis {
         modContainer.registerConfig(ModConfig.Type.CLIENT, ClientConfig.SPEC);
 
         ModAttachment.register(modEventBus);
-
-        // Register the commonSetup method for modloading
-        modEventBus.addListener(this::commonSetup);
+        ModDataComponents.REGISTRAR.register(modEventBus);
+        ModItems.ITEMS.register(modEventBus);
     }
 
-    private void commonSetup(FMLCommonSetupEvent event) {
-        LOGGER.info("Common setup completed");
+    public static long getGameTime() {
+        return getLevel().getGameTime();
+    }
+
+    public static Level getLevel() {
+        if (level == null) {
+            throw new IllegalStateException("Level is not set!");
+        }
+        return level;
+    }
+
+    @SubscribeEvent
+    private static void serverStarting(ServerStartingEvent event) {
+        level = event.getServer().overworld();
     }
 }

@@ -6,22 +6,28 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.tags.TagKey;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.saveddata.SavedData;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * @author llykff
  */
 public class VillageManager extends SavedData {
 
+    private static final RandomSource RANDOM = RandomSource.create();
     private static final VillageManager INSTANCE = new VillageManager();
     private static final Logger LOGGER = LogUtils.getLogger();
-    protected Map<Long, VillageData> villageMap = new HashMap<>();
+    protected Map<UUID, VillageData> villageMap = new HashMap<>();
 
     private VillageManager() {
 
@@ -34,43 +40,49 @@ public class VillageManager extends SavedData {
     /**
      * 注册一个村庄
      *
-     * @param pos 村庄中心位置
+     * @param pos         村庄中心位置
+     * @param boundingBox 村庄边界框
+     * @param biome       村庄所在的群系
      */
-    public static void registerVillage(BlockPos pos, BoundingBox2D boundingBox) {
-        VillageManager.getInstance().villageMap.putIfAbsent(pos.asLong(),
-                new VillageData(pos, boundingBox));
+    public static void registerVillage(BlockPos pos, BoundingBox2D boundingBox,
+            @Nullable TagKey<Biome> biome) {
+        VillageData villageData = new VillageData(pos, boundingBox, biome, RANDOM);
+
+        VillageManager.getInstance().villageMap.putIfAbsent(villageData.getVillageId(),
+                villageData);
+        markDirty();
     }
+
 
     /**
      * 获取一个村庄的数据类
      *
-     * @param pos 村庄中心位置
+     * @param id 村庄ID
      * @return 村庄数据类
      */
-    public static Optional<VillageData> getVillageData(BlockPos pos) {
-        if (!isVillageExist(pos)) {
+    public static Optional<VillageData> getVillageData(UUID id) {
+        if (!isVillageExist(id)) {
             return Optional.empty();
         }
-        return Optional.of(VillageManager.getInstance().villageMap.get(pos.asLong()));
+        return Optional.of(VillageManager.getInstance().villageMap.get(id));
     }
 
     /**
      * 检查一个村庄是否存在
      *
-     * @param pos 村庄中心位置
+     * @param id 村庄中心位置
      * @return 是否存在
      */
-    public static boolean isVillageExist(BlockPos pos) {
-        if (!VillageManager.getInstance().villageMap.containsKey(pos.asLong())) {
-            LOGGER.warn("VillageManager: 未找到村庄数据类，位置：x{}, y{}, z{}", pos.getX(),
-                    pos.getY(), pos.getZ());
+    public static boolean isVillageExist(UUID id) {
+        if (!VillageManager.getInstance().villageMap.containsKey(id)) {
+            LOGGER.warn("VillageManager: 未找到村庄数据类，ID：{}", id);
             return false;
         }
         return true;
     }
 
     /**
-     * 获取位置所属的村庄中心位置
+     * 检查一个位置是否在任何村庄的范围内
      *
      * @param pos 要检查的位置
      * @return 村庄中心位置（第一个匹配的）
@@ -94,25 +106,33 @@ public class VillageManager extends SavedData {
     /**
      * 检查一个位置是否在指定村庄范围
      *
-     * @param pos           要检查的位置
-     * @param villageCenter 村庄中心位置
+     * @param pos       要检查的位置
+     * @param villageId 村庄ID
      * @return 是否在任何村庄范围内
      */
-    public static boolean isPosInVillage(BlockPos pos, BlockPos villageCenter) {
+    public static boolean isPosInVillage(BlockPos pos, UUID villageId) {
 
-        return getVillageData(villageCenter).isPresent() && getVillageData(villageCenter).get()
+        return getVillageData(villageId).isPresent() && getVillageData(villageId).get()
                 .getBoundingBox().contains(pos);
     }
 
     public static VillageManager load(CompoundTag tag, HolderLookup.Provider registries) {
-        ListTag villages = tag.getList("Villages", CompoundTag.TAG_COMPOUND);
+        ListTag villages = tag.getList("villages", CompoundTag.TAG_COMPOUND);
         villages.forEach(villageTag -> {
             VillageData villageData = VillageData.load((CompoundTag) villageTag, registries);
-            VillageManager.getInstance().villageMap.putIfAbsent(villageData.getCenterPos().asLong(),
+            VillageManager.getInstance().villageMap.putIfAbsent(villageData.getVillageId(),
                     villageData);
         });
 
         return INSTANCE;
+    }
+
+    public static void markDirty() {
+        VillageManager.getInstance().setDirty();
+    }
+
+    public static RandomSource getRandom() {
+        return RANDOM;
     }
 
     @Override
@@ -121,7 +141,7 @@ public class VillageManager extends SavedData {
         villageMap.values().forEach(
                 villageData -> tagList.add(villageData.save(new CompoundTag(), registries)));
 
-        tag.put("Villages", tagList);
+        tag.put("villages", tagList);
         return tag;
     }
 }

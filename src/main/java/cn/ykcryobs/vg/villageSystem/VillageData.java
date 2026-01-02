@@ -15,6 +15,9 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.biome.Biome;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
@@ -25,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import javax.annotation.Nullable;
 
 /**
  * 村庄信息核心类，记录村庄的基本信息和状态
@@ -34,11 +38,10 @@ import java.util.UUID;
 public class VillageData {
 
     private static final Logger LOGGER = LogUtils.getLogger();
-
     // 村庄唯一标识符
     private UUID villageId;
     // 村庄名称
-    private String villageName;
+    private Component villageName;
     // 村庄等级
     private int villageLevel;
     // 村庄经验值
@@ -68,23 +71,24 @@ public class VillageData {
         this.villageLevel = 0;
         this.villageExp = 0;
         this.population = 0;
-        this.createdTime = System.currentTimeMillis();
-        this.lastUpdateTime = System.currentTimeMillis();
+        this.createdTime = 0;
+        this.lastUpdateTime = 0;
         this.status = VillageStatus.DEVELOPING;
-        this.villagers = new HashSet<>();
-        this.facilities = new HashMap<>();
+        this.villagers = null;
+        this.facilities = null;
     }
 
-    public VillageData(BlockPos centerPos, BoundingBox2D boundingBox) {
+    public VillageData(BlockPos centerPos, BoundingBox2D boundingBox,
+            @Nullable TagKey<Biome> holder, RandomSource random) {
         this.villageId = UUID.randomUUID();
-        this.villageName = null;
+        this.villageName = VillageNameGenerator.generateVillageName(holder, random);
         this.centerPos = centerPos;
         this.boundingBox = boundingBox;
         this.villageLevel = 0;
         this.villageExp = 0;
         this.population = 0;
-        this.createdTime = System.currentTimeMillis();
-        this.lastUpdateTime = System.currentTimeMillis();
+        this.createdTime = VillageGenesis.getGameTime();
+        this.lastUpdateTime = this.createdTime;
         this.status = VillageStatus.DEVELOPING;
         this.villagers = new HashSet<>();
         this.facilities = new HashMap<>();
@@ -97,7 +101,10 @@ public class VillageData {
         VillageData villageData = new VillageData();
 
         villageData.villageId = nbt.getUUID("villageId");
-        villageData.villageName = nbt.getString("villageName");
+
+        villageData.villageName = VillageNameGenerator.deserializeNbt(
+                nbt.getCompound("villageName"));
+
         villageData.villageLevel = nbt.getInt("villageLevel");
         villageData.villageExp = nbt.getInt("villageExp");
         villageData.population = nbt.getInt("population");
@@ -165,9 +172,9 @@ public class VillageData {
     /**
      * 获取村庄名称
      *
-     * @return 村庄名称
+     * @return 村庄名称组件
      */
-    public String getVillageName() {
+    public Component getVillageName() {
         return this.villageName;
     }
 
@@ -176,7 +183,7 @@ public class VillageData {
      *
      * @param villageName 新的村庄名称
      */
-    public void setVillageName(String villageName) {
+    public void setVillageName(Component villageName) {
         this.villageName = villageName;
         this.markDirty();
     }
@@ -237,7 +244,7 @@ public class VillageData {
      */
     public int getRequiredExpForNextLevel() {
         if (this.villageLevel >= 10) {
-            return Integer.MAX_VALUE; // 最高等级不再需要经验值
+            return -1;
         }
         // 计算下一级所需经验值，递增算法
         return this.villageLevel * 100 + (this.villageLevel - 1) * 50;
@@ -409,16 +416,17 @@ public class VillageData {
     public String getInfoOverview() {
         return String.format(
                 "村庄: %s (等级%d) - 人口: %d - 状态: %s - 中心 : (%d, %d) - 边界 : %s",
-                this.villageName, this.villageLevel, this.population, this.status.getDisplayName(),
-                this.centerPos.getX(), this.centerPos.getZ(), this.boundingBox.toString());
+                this.getVillageName(), this.villageLevel, this.population,
+                this.status.getDisplayName(), this.centerPos.getX(), this.centerPos.getZ(),
+                this.boundingBox.toString());
     }
 
     /**
      * 标记数据为脏数据，需要保存
      */
     private void markDirty() {
-        this.lastUpdateTime = System.currentTimeMillis();
-        // 注意：由于VillageData实现了INBTSerializable而不是SavedData，这里不需要调用setDirty()
+        this.lastUpdateTime = VillageGenesis.getGameTime();
+        VillageManager.markDirty();
     }
 
     /**
@@ -437,6 +445,8 @@ public class VillageData {
      */
     public void addVillager(UUID villager) {
         this.villagers.add(villager);
+        this.addPopulation(1);
+        this.markDirty();
     }
 
     /**
@@ -446,6 +456,8 @@ public class VillageData {
      */
     public void removeVillager(UUID villager) {
         this.villagers.remove(villager);
+        this.addPopulation(-1);
+        this.markDirty();
     }
 
     /**
@@ -453,6 +465,8 @@ public class VillageData {
      */
     public void clearVillagers() {
         this.villagers.clear();
+        this.setPopulation(0);
+        this.markDirty();
     }
 
     /**
@@ -467,7 +481,9 @@ public class VillageData {
 
     public CompoundTag save(CompoundTag nbt, HolderLookup.Provider provider) {
         nbt.putUUID("villageId", this.villageId);
-        nbt.putString("villageName", this.villageName);
+
+        nbt.put("villageName", VillageNameGenerator.serializeNbt(this.villageName));
+
         nbt.putInt("villageLevel", this.villageLevel);
         nbt.putInt("villageExp", this.villageExp);
         nbt.putInt("population", this.population);
@@ -476,6 +492,8 @@ public class VillageData {
         nbt.putLong("lastUpdateTime", System.currentTimeMillis());
 
         nbt.putLong("centerPos", this.centerPos.asLong());
+        LOGGER.debug("village center pos: x={}, y={}, z={}", this.centerPos.getX(),
+                this.centerPos.getY(), this.centerPos.getZ());
 
         nbt.putString("status", this.status.name());
 
@@ -547,4 +565,6 @@ public class VillageData {
             return Component.translatable("village.village_genesis." + this.id);
         }
     }
+
+
 }

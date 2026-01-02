@@ -3,7 +3,6 @@ package cn.ykcryobs.vg.mixin;
 import cn.ykcryobs.vg.utils.BoundingBox2D;
 import cn.ykcryobs.vg.villageSystem.VillageManager;
 import com.llamalad7.mixinextras.sugar.Local;
-import net.minecraft.core.HolderSet;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.SectionPos;
 import net.minecraft.tags.BiomeTags;
@@ -44,25 +43,21 @@ public abstract class ChunkGeneratorMixin {
             return;
         }
 
-        HolderSet<Biome> villageBiomes = structure.biomes();
-        boolean isVillage = villageGenesis$isVillageBiomeSet(villageBiomes);
-
-        if (isVillage) {
-            VillageManager.registerVillage(chunkPos.getWorldPosition(),
-                    new BoundingBox2D(structurestart.getBoundingBox()));
+        Optional<TagKey<Biome>> optionalBiomeTagKey = structure.biomes().unwrapKey();
+        if (optionalBiomeTagKey.isPresent()) {
+            TagKey<Biome> biomeTagKey = optionalBiomeTagKey.get();
+            if (villageGenesis$isVillageBiomeSet(biomeTagKey)) {
+                VillageManager.registerVillage(chunkPos.getWorldPosition(),
+                        new BoundingBox2D(structurestart.getBoundingBox()), biomeTagKey);
+            }
         }
     }
 
     @Unique
-    private boolean villageGenesis$isVillageBiomeSet(HolderSet<Biome> biomeSet) {
-        Optional<TagKey<Biome>> optionalBiomeTagKey = biomeSet.unwrapKey();
-        if (optionalBiomeTagKey.isPresent()) {
-            TagKey<Biome> biomeTagKey = optionalBiomeTagKey.get();
-            return biomeTagKey.equals(BiomeTags.HAS_VILLAGE_PLAINS) || biomeTagKey.equals(
-                    BiomeTags.HAS_VILLAGE_DESERT) || biomeTagKey.equals(BiomeTags.HAS_VILLAGE_SNOWY)
-                    || biomeTagKey.equals(BiomeTags.HAS_VILLAGE_TAIGA) || biomeTagKey.equals(
-                    BiomeTags.HAS_VILLAGE_SAVANNA);
-        }
-        return false;
+    private boolean villageGenesis$isVillageBiomeSet(TagKey<Biome> biomeTagKey) {
+        return biomeTagKey.equals(BiomeTags.HAS_VILLAGE_PLAINS) || biomeTagKey.equals(
+                BiomeTags.HAS_VILLAGE_DESERT) || biomeTagKey.equals(BiomeTags.HAS_VILLAGE_SNOWY)
+                || biomeTagKey.equals(BiomeTags.HAS_VILLAGE_TAIGA) || biomeTagKey.equals(
+                BiomeTags.HAS_VILLAGE_SAVANNA);
     }
 }

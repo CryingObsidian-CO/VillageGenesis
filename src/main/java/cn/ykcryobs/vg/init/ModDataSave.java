@@ -18,7 +18,7 @@ import net.neoforged.neoforge.event.server.ServerStartingEvent;
 public class ModDataSave {
 
     @SubscribeEvent
-    public static void register(ServerStartingEvent event) {
+    private static void register(ServerStartingEvent event) {
         ServerLevel overworld = event.getServer().overworld();
         overworld.getDataStorage().computeIfAbsent(
                 new SavedData.Factory<>(VillageManager::getInstance, VillageManager::load),
