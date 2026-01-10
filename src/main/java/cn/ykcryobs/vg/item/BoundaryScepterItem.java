@@ -36,13 +36,23 @@ public class BoundaryScepterItem extends Item {
     }
 
     /**
+     * 检查该权杖是否已绑定村庄
+     *
+     * @param stack 权杖物品栈
+     * @return 如果已绑定村庄返回true，否则返回false
+     */
+    public static boolean hasBoundedVillage(ItemStack stack) {
+        return getBoundedVillage(stack) != null;
+    }
+
+    /**
      * 获取绑定到该权杖的村庄UUID
      *
      * @param stack 权杖物品栈
      * @return 绑定的村庄UUID，如果未绑定则返回null
      */
     @Nullable
-    public UUID getBoundedVillage(ItemStack stack) {
+    public static UUID getBoundedVillage(ItemStack stack) {
         return stack.get(ModDataComponents.BOUNDED_VILLAGE);
     }
 
@@ -52,18 +62,8 @@ public class BoundaryScepterItem extends Item {
      * @param stack     权杖物品栈
      * @param villageId 要绑定的村庄UUID
      */
-    public void setBoundedVillage(ItemStack stack, UUID villageId) {
+    public static void setBoundedVillage(ItemStack stack, UUID villageId) {
         stack.set(ModDataComponents.BOUNDED_VILLAGE, villageId);
-    }
-
-    /**
-     * 检查该权杖是否已绑定村庄
-     *
-     * @param stack 权杖物品栈
-     * @return 如果已绑定村庄返回true，否则返回false
-     */
-    public boolean hasBoundedVillage(ItemStack stack) {
-        return this.getBoundedVillage(stack) != null;
     }
 
     @Override
@@ -93,8 +93,7 @@ public class BoundaryScepterItem extends Item {
         ItemStack itemStack = context.getItemInHand();
         if (villageData.isEmpty()) {
             // TODO 改进提示
-            this.sendMessage(player,
-                    Component.translatable("message.village_genesis.not_in_village"));
+            this.sendMessage(player, Component.translatable("message.village_genesis.not_in_village"));
             return super.useOn(context);
         }
         if (player.isCrouching() && level.getBlockState(clickedPos).getBlock() == Blocks.BELL) {
@@ -133,12 +132,12 @@ public class BoundaryScepterItem extends Item {
             Optional<VillageData> villageData = VillageManager.getVillageData(boundedVillage);
             if (villageData.isPresent()) {
                 Component villageName = villageData.get().getVillageName();
-                tooltipComponents.add(Component.translatable(
-                        "tooltip.village_genesis.boundary_scepter.bound_village"));
+                tooltipComponents.add(
+                        Component.translatable("tooltip.village_genesis.boundary_scepter.bound_village"));
                 tooltipComponents.add(villageName);
             } else {
-                tooltipComponents.add(Component.translatable(
-                        "tooltip.village_genesis.boundary_scepter.bound_unknown"));
+                tooltipComponents.add(
+                        Component.translatable("tooltip.village_genesis.boundary_scepter.bound_unknown"));
             }
         } else {
             tooltipComponents.add(

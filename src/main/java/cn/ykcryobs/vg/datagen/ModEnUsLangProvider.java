@@ -21,22 +21,29 @@ public class ModEnUsLangProvider extends LanguageProvider {
         addVillageNamePartTranslations();
 
         // 配置文件翻译
-        add("village_genesis.configuration.section.village.genesis.common.toml",
-                "Village Genesis Common");
+        add("village_genesis.configuration.section.village.genesis.common.toml", "Village Genesis Common");
         add("village_genesis.configuration.section.village.genesis.common.toml.title",
                 "Village Genesis Common Settings");
         add("village_genesis.configuration.section.village.genesis.client.toml", "Client Settings");
-        add("village_genesis.configuration.section.village.genesis.client.toml.title",
-                "Client Settings");
+        add("village_genesis.configuration.section.village.genesis.client.toml.title", "Client Settings");
         add("village_genesis.configuration.section.village.genesis.server.toml", "Server Settings");
-        add("village_genesis.configuration.section.village.genesis.server.toml.title",
-                "Server Settings");
+        add("village_genesis.configuration.section.village.genesis.server.toml.title", "Server Settings");
 
         // client side
-        add("village_genesis.configuration.client.particleRenderInterval",
-                "Particle Render Interval");
-        add("village_genesis.configuration.client.particleRenderInterval.tooltip",
+        add("village_genesis.configuration.particleRenderInterval", "Particle Render Interval");
+        add("village_genesis.configuration.particleRenderInterval.tooltip",
                 "The interval in ticks to render particles.");
+
+        // server side
+        add("village_genesis.configuration.facilityDurability", "Facility Durability Settings");
+        add("village_genesis.configuration.durabilityInspectionInterval",
+                "Facility Durability Inspection Interval");
+        add("village_genesis.configuration.durabilityInspectionInterval.tooltip",
+                "The interval in ticks to inspect facility durability.");
+        add("village_genesis.configuration.durabilityThresholdToNeedMaintenance",
+                "Facility Durability Threshold to Need Maintenance");
+        add("village_genesis.configuration.durabilityThresholdToNeedMaintenance.tooltip",
+                "The durability threshold to need maintenance.(0-100)%");
 
         // items
         addItem(ModItems.BOUNDARY_SCEPTER, "Boundary Scepter");
@@ -51,8 +58,7 @@ public class ModEnUsLangProvider extends LanguageProvider {
     }
 
     private void addVillageNamePartTranslations() {
-        add("village_genesis.configuration.villageNameGenerationMode",
-                "Village Name Generation Mode");
+        add("village_genesis.configuration.villageNameGenerationMode", "Village Name Generation Mode");
         add("village_genesis.configuration.villageSuffixSavanna", "Savanna Village Suffix");
         add("village_genesis.configuration.villageCorePlains", "Plains Village Core");
         add("village_genesis.configuration.villageCoreSavanna", "Savanna Village Core");
@@ -68,35 +74,28 @@ public class ModEnUsLangProvider extends LanguageProvider {
         add("village_genesis.configuration.villageCorePlains.button", "Plains Village Core");
         add("village_genesis.configuration.villageCoreTaiga.button", "Taiga Village Core");
         add("village_genesis.configuration.villageCoreDesert.tooltip", "Desert Village Core Words");
-        add("village_genesis.configuration.villageSuffixSavanna.tooltip",
-                "Savanna Village Suffix Words");
+        add("village_genesis.configuration.villageSuffixSavanna.tooltip", "Savanna Village Suffix Words");
         add("village_genesis.configuration.villageSuffixSnowy.button", "Snowy Village Suffix");
         add("village_genesis.configuration.villageSuffixDesert.button", "Desert Village Suffix");
         add("village_genesis.configuration.title", "Village Genesis Configuration");
 
         add("village_genesis.configuration.villageSuffixSavanna.button", "Savanna Village Suffix");
         add("village_genesis.configuration.villageSuffixTaiga.button", "Taiga Village Suffix");
-        add("village_genesis.configuration.villageNameGeneration.button",
-                "Village Name Generation");
+        add("village_genesis.configuration.villageNameGeneration.button", "Village Name Generation");
         add("village_genesis.configuration.villageSuffixPlains.button", "Plains Village Suffix");
 
         add("village_genesis.configuration.villageCoreSnowy.button", "Snowy Village Core");
         add("village_genesis.configuration.villageCoreSnowy.tooltip", "Snowy Village Core Words");
         add("village_genesis.configuration.villageCoreTaiga.tooltip", "Taiga Village Core Words");
-        add("village_genesis.configuration.villageSuffixPlains.tooltip",
-                "Plains Village Suffix Words");
+        add("village_genesis.configuration.villageSuffixPlains.tooltip", "Plains Village Suffix Words");
         add("village_genesis.configuration.villagePrefixes.tooltip", "Village Prefix Words");
         add("village_genesis.configuration.villageCoreDesert.button", "Desert Village Core");
         add("village_genesis.configuration.villagePrefixes.button", "Village Prefixes");
         add("village_genesis.configuration.villageCoreSavanna.button", "Savanna Village Core");
-        add("village_genesis.configuration.villageSuffixDesert.tooltip",
-                "Desert Village Suffix Words");
-        add("village_genesis.configuration.villageSuffixSnowy.tooltip",
-                "Snowy Village Suffix Words");
-        add("village_genesis.configuration.villageSuffixTaiga.tooltip",
-                "Taiga Village Suffix Words");
-        add("village_genesis.configuration.villageCoreSavanna.tooltip",
-                "Savanna Village Core Words");
+        add("village_genesis.configuration.villageSuffixDesert.tooltip", "Desert Village Suffix Words");
+        add("village_genesis.configuration.villageSuffixSnowy.tooltip", "Snowy Village Suffix Words");
+        add("village_genesis.configuration.villageSuffixTaiga.tooltip", "Taiga Village Suffix Words");
+        add("village_genesis.configuration.villageCoreSavanna.tooltip", "Savanna Village Core Words");
         add("village_genesis.configuration.villageNameGeneration.tooltip",
                 "Village Name Generation Settings");
         add("village_genesis.configuration.villageCorePlains.tooltip", "Plains Village Core Words");

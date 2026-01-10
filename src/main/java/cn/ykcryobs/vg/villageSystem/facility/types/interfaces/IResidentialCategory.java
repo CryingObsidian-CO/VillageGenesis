@@ -1,17 +1,14 @@
-package cn.ykcryobs.vg.villageSystem.facility.interfaces;
+package cn.ykcryobs.vg.villageSystem.facility.types.interfaces;
 
 /**
+ * 住宅设施分类接口
+ *
  * @author llykff
  */
-public interface IResidentialFacilityCategory extends IFacilityCategory {
+public interface IResidentialCategory extends IFacilityCategory {
 
-    /**
-     * 获取住宅设施分类的名称
-     *
-     * @return 住宅设施分类的名称
-     */
     @Override
-    default String getFacilityCategory() {
+    default String getFacilityCategoryName() {
         return "residential";
     }
 

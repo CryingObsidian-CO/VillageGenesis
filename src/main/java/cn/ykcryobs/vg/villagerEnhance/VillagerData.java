@@ -9,6 +9,8 @@ import org.jetbrains.annotations.UnknownNullability;
 import java.util.UUID;
 
 /**
+ * 村民数据
+ *
  * @author llykff
  */
 public class VillagerData implements INBTSerializable<CompoundTag> {

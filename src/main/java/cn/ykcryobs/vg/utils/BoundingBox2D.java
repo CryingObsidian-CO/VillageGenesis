@@ -9,6 +9,8 @@ import org.slf4j.Logger;
 import java.util.Objects;
 
 /**
+ * 二维边界框类，用于表示平面上的矩形边界
+ *
  * @author llykff
  */
 public class BoundingBox2D {
@@ -19,6 +21,14 @@ public class BoundingBox2D {
     private int maxX;
     private int maxZ;
 
+    /**
+     * 创建一个二维边界框
+     *
+     * @param minX 最小X坐标
+     * @param minZ 最小Z坐标
+     * @param maxX 最大X坐标
+     * @param maxZ 最大Z坐标
+     */
     public BoundingBox2D(int minX, int minZ, int maxX, int maxZ) {
         this.minX = minX;
         this.minZ = minZ;
@@ -35,10 +45,21 @@ public class BoundingBox2D {
         }
     }
 
+    /**
+     * 从三维边界框创建二维边界框
+     *
+     * @param boundingBox 三维边界框
+     */
     public BoundingBox2D(BoundingBox boundingBox) {
         this(boundingBox.minX(), boundingBox.minZ(), boundingBox.maxX(), boundingBox.maxZ());
     }
 
+    /**
+     * 从NBT标签反序列化二维边界框
+     *
+     * @param tag NBT标签
+     * @return 二维边界框实例
+     */
     public static BoundingBox2D deserializeNBT(CompoundTag tag) {
         int minX = tag.getInt("minX");
         int minZ = tag.getInt("minZ");
@@ -47,6 +68,11 @@ public class BoundingBox2D {
         return new BoundingBox2D(minX, minZ, maxX, maxZ);
     }
 
+    /**
+     * 将二维边界框序列化为NBT标签
+     *
+     * @return NBT标签
+     */
     public CompoundTag serializeNBT() {
         CompoundTag tag = new CompoundTag();
         tag.putInt("minX", minX);
@@ -142,6 +168,12 @@ public class BoundingBox2D {
         return Objects.hash(minX, minZ, maxX, maxZ);
     }
 
+    /**
+     * 检查指定位置是否在边界框内
+     *
+     * @param pos 要检查的位置
+     * @return 如果位置在边界框内返回true，否则返回false
+     */
     public boolean contains(BlockPos pos) {
         return inSide(pos.getX(), pos.getZ());
     }

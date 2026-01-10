@@ -6,6 +6,8 @@ import net.neoforged.neoforge.client.model.generators.ItemModelProvider;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 
 /**
+ * 物品模型提供器
+ *
  * @author llykff
  */
 public class ModItemModelsProvider extends ItemModelProvider {

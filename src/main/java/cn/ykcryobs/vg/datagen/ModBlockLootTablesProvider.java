@@ -21,6 +21,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Set;
 
 /**
+ * 方块掉落表提供器
+ *
  * @author llykff
  */
 public class ModBlockLootTablesProvider extends BlockLootSubProvider {
@@ -33,8 +35,7 @@ public class ModBlockLootTablesProvider extends BlockLootSubProvider {
     protected void generate() {
     }
 
-    protected LootTable.Builder createOreMultiDrops(Block block, Item item, float minDrops,
-            float maxDrops) {
+    protected LootTable.Builder createOreMultiDrops(Block block, Item item, float minDrops, float maxDrops) {
         HolderLookup.RegistryLookup<Enchantment> registrylookup = this.registries.lookupOrThrow(
                 Registries.ENCHANTMENT);
         return this.createSilkTouchDispatchTable(block, this.applyExplosionDecay(block,

@@ -26,16 +26,22 @@ public class ModZhCnLangProvider extends LanguageProvider {
         add("village_genesis.configuration.section.village.genesis.common.toml", "通用设置");
         add("village_genesis.configuration.section.village.genesis.common.toml.title", "通用设置");
         add("village_genesis.configuration.section.village.genesis.client.toml", "客户端设置");
-        add("village_genesis.configuration.section.village.genesis.client.toml.title",
-                "客户端设置");
+        add("village_genesis.configuration.section.village.genesis.client.toml.title", "客户端设置");
         add("village_genesis.configuration.section.village.genesis.server.toml", "服务器设置");
-        add("village_genesis.configuration.section.village.genesis.server.toml.title",
-                "服务器设置");
+        add("village_genesis.configuration.section.village.genesis.server.toml.title", "服务器设置");
 
         // client side
         add("village_genesis.configuration.particleRenderInterval", "粒子渲染间隔");
-        add("village_genesis.configuration.particleRenderInterval.tooltip",
-                "渲染粒子的时间间隔（单位：tick）");
+        add("village_genesis.configuration.particleRenderInterval.tooltip", "渲染粒子的时间间隔（单位：tick）");
+
+        // server side
+        add("village_genesis.configuration.facilityDurability", "设施耐久度配置");
+        add("village_genesis.configuration.durabilityInspectionInterval", "设施耐久度检查间隔");
+        add("village_genesis.configuration.durabilityInspectionInterval.tooltip",
+                "设施耐久度检查的时间间隔（单位：tick）");
+        add("village_genesis.configuration.durabilityThresholdToNeedMaintenance", "设施耐久度需要维护的阈值");
+        add("village_genesis.configuration.durabilityThresholdToNeedMaintenance.tooltip",
+                "设施耐久度低于此阈值时，需要维护。（0-100)%");
 
         // items
         addItem(ModItems.BOUNDARY_SCEPTER, "边界权杖");
@@ -87,8 +93,7 @@ public class ModZhCnLangProvider extends LanguageProvider {
         add("village_genesis.configuration.villageCoreSavanna.tooltip", "热带草原村庄核心词列表");
         add("village_genesis.configuration.villageNameGeneration.tooltip", "村庄名称生成设置");
         add("village_genesis.configuration.villageCorePlains.tooltip", "平原村庄核心词列表");
-        add("village_genesis.configuration.villageNameGenerationMode.tooltip",
-                "村庄名称生成模式设置");
+        add("village_genesis.configuration.villageNameGenerationMode.tooltip", "村庄名称生成模式设置");
         // 村庄前缀
         add("village.village_genesis.name.prefix.new", "新");
         add("village.village_genesis.name.prefix.old", "旧");

@@ -1,6 +1,8 @@
-package cn.ykcryobs.vg.villageSystem.facility.interfaces;
+package cn.ykcryobs.vg.villageSystem.facility.types.interfaces;
 
 /**
+ * 设施分类接口，定义了设施的基本属性和行为
+ *
  * @author llykff
  */
 public interface IFacilityCategory {
@@ -10,7 +12,7 @@ public interface IFacilityCategory {
      *
      * @return 设施分类的名称
      */
-    String getFacilityCategory();
+    String getFacilityCategoryName();
 
     /**
      * 获取设施的基础容量
@@ -30,20 +32,20 @@ public interface IFacilityCategory {
     int getRequiredVillageLevel();
 
     /**
-     * 高等级村庄是否可以建造此设施
-     *
-     * @return 是否可以在高等级建造
-     */
-    default boolean isAvailableAtHighLevel() {
-        return false;
-    }
-
-    /**
      * 获取设施的建造时间（tick）
      *
      * @return 建造时间
      */
     int getBuildTime();
+
+    /**
+     * 是否受到耐久度影响
+     *
+     * @return 是否受到耐久度影响
+     */
+    default boolean isDurabilityAffected() {
+        return true;
+    }
 
     /**
      * 获取设施升级所需时间（tick）
@@ -52,6 +54,15 @@ public interface IFacilityCategory {
      */
     default int getUpgradeTime() {
         return this.getBuildTime() / 2;
+    }
+
+    /**
+     * 高等级村庄是否可以建造此设施
+     *
+     * @return 是否可以在高等级建造
+     */
+    default boolean isAvailableAtHighLevel() {
+        return false;
     }
 
     /**

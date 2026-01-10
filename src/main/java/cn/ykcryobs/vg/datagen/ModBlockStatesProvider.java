@@ -6,6 +6,8 @@ import net.neoforged.neoforge.client.model.generators.BlockStateProvider;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 
 /**
+ * 方块状态提供器
+ *
  * @author llykff
  */
 public class ModBlockStatesProvider extends BlockStateProvider {

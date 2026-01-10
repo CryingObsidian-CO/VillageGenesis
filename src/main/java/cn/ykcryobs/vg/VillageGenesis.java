@@ -6,6 +6,7 @@ import cn.ykcryobs.vg.config.ServerConfig;
 import cn.ykcryobs.vg.init.ModAttachment;
 import cn.ykcryobs.vg.init.ModDataComponents;
 import cn.ykcryobs.vg.init.ModItems;
+import cn.ykcryobs.vg.init.ModRegistries;
 import com.mojang.logging.LogUtils;
 import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.IEventBus;
@@ -17,7 +18,11 @@ import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import org.slf4j.Logger;
 
-// The value here should match an entry in the META-INF/neoforge.mods.toml file
+/**
+ * 村庄生成模组的主类，负责初始化模组的各项功能
+ *
+ * @author llykff
+ */
 @Mod(VillageGenesis.MOD_ID)
 @EventBusSubscriber(modid = VillageGenesis.MOD_ID)
 public class VillageGenesis {
@@ -25,7 +30,7 @@ public class VillageGenesis {
     // Define mod id in a common place for everything to reference
     public static final String MOD_ID = "village_genesis";
     // Directly reference a slf4j logger
-    public static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     public static Level level;
 
@@ -41,12 +46,32 @@ public class VillageGenesis {
         ModAttachment.register(modEventBus);
         ModDataComponents.REGISTRAR.register(modEventBus);
         ModItems.ITEMS.register(modEventBus);
+        ModRegistries.STRUCTURE_POOL_ELEMENT_REGISTRY.register(modEventBus);
     }
 
+    public static String getModIdentifier(String name) {
+        return MOD_ID + ":" + name;
+    }
+
+    /**
+     * 获取当前游戏时间
+     *
+     * @return 当前游戏时间（以刻为单位）
+     */
     public static long getGameTime() {
-        return getLevel().getGameTime();
+        try {
+            return getLevel().getGameTime();
+        } catch (IllegalStateException e) {
+            return 0;
+        }
     }
 
+    /**
+     * 获取当前世界实例
+     *
+     * @return 当前世界实例
+     * @throws IllegalStateException 如果世界未被设置
+     */
     public static Level getLevel() {
         if (level == null) {
             throw new IllegalStateException("Level is not set!");
@@ -54,8 +79,14 @@ public class VillageGenesis {
         return level;
     }
 
+    /**
+     * 服务器启动事件处理器，用于初始化世界实例
+     *
+     * @param event 服务器启动事件
+     */
     @SubscribeEvent
     private static void serverStarting(ServerStartingEvent event) {
         level = event.getServer().overworld();
     }
+
 }

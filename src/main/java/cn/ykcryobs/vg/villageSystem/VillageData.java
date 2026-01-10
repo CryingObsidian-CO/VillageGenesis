@@ -1,31 +1,23 @@
 package cn.ykcryobs.vg.villageSystem;
 
 import cn.ykcryobs.vg.VillageGenesis;
-import cn.ykcryobs.vg.init.ModDataPackRegistries;
 import cn.ykcryobs.vg.utils.BoundingBox2D;
-import cn.ykcryobs.vg.villageSystem.facility.interfaces.IFacilityType;
+import cn.ykcryobs.vg.villageSystem.facility.FacilityManager;
+import cn.ykcryobs.vg.villageSystem.facility.VillageFacility;
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.biome.Biome;
 import org.slf4j.Logger;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import javax.annotation.Nullable;
@@ -60,8 +52,8 @@ public class VillageData {
     private VillageStatus status;
     // 村庄村民列表
     private Set<UUID> villagers;
-    // 村庄设施列表
-    private Map<IFacilityType, List<VillageFacility>> facilities;
+    // 村庄设施管理器
+    private FacilityManager facilityManager;
 
     public VillageData() {
         this.villageId = null;
@@ -75,11 +67,11 @@ public class VillageData {
         this.lastUpdateTime = 0;
         this.status = VillageStatus.DEVELOPING;
         this.villagers = null;
-        this.facilities = null;
+        this.facilityManager = null;
     }
 
-    public VillageData(BlockPos centerPos, BoundingBox2D boundingBox,
-            @Nullable TagKey<Biome> holder, RandomSource random) {
+    public VillageData(BlockPos centerPos, BoundingBox2D boundingBox, @Nullable TagKey<Biome> holder,
+            RandomSource random) {
         this.villageId = UUID.randomUUID();
         this.villageName = VillageNameGenerator.generateVillageName(holder, random);
         this.centerPos = centerPos;
@@ -91,35 +83,24 @@ public class VillageData {
         this.lastUpdateTime = this.createdTime;
         this.status = VillageStatus.DEVELOPING;
         this.villagers = new HashSet<>();
-        this.facilities = new HashMap<>();
+        this.facilityManager = new FacilityManager(this.villageId);
     }
 
     public static VillageData load(CompoundTag nbt, HolderLookup.Provider provider) {
-        HolderLookup.RegistryLookup<IFacilityType> facilityRegistry = provider.lookupOrThrow(
-                ModDataPackRegistries.FACILITY_REGISTRY_KEY);
-
         VillageData villageData = new VillageData();
 
         villageData.villageId = nbt.getUUID("villageId");
-
-        villageData.villageName = VillageNameGenerator.deserializeNbt(
-                nbt.getCompound("villageName"));
-
+        villageData.villageName = VillageNameGenerator.deserializeNbt(nbt.getCompound("villageName"));
         villageData.villageLevel = nbt.getInt("villageLevel");
         villageData.villageExp = nbt.getInt("villageExp");
         villageData.population = nbt.getInt("population");
         villageData.boundingBox = BoundingBox2D.deserializeNBT(nbt.getCompound("boundingBox"));
         villageData.createdTime = nbt.getLong("createdTime");
         villageData.lastUpdateTime = nbt.getLong("lastUpdateTime");
-
-        // 加载中心位置
         villageData.centerPos = BlockPos.of(nbt.getLong("centerPos"));
-
-        // 加载村庄状态
         String statusStr = nbt.getString("status");
         villageData.status = VillageStatus.valueOf(statusStr);
 
-        // 加载村民列表
         villageData.villagers = new HashSet<>();
         if (nbt.contains("villagers", Tag.TAG_LIST)) {
             ListTag villagerList = nbt.getList("villagers", Tag.TAG_STRING);
@@ -129,34 +110,14 @@ public class VillageData {
             }
         }
 
-        // 加载设施列表
-        villageData.facilities = new HashMap<>();
-        if (nbt.contains("facilities", Tag.TAG_LIST)) {
-            ListTag facilityList = nbt.getList("facilities", Tag.TAG_COMPOUND);
-            for (Tag tag : facilityList) {
-                CompoundTag typeTag = (CompoundTag) tag;
-                String typeStr = typeTag.getString("facilityType");
-                ResourceKey<IFacilityType> facilityTypeKey = ResourceKey.create(
-                        ModDataPackRegistries.FACILITY_REGISTRY_KEY,
-                        ResourceLocation.fromNamespaceAndPath(VillageGenesis.MOD_ID,
-                                "village/facilities/" + typeStr));
-                IFacilityType facilityType = facilityRegistry.get(facilityTypeKey)
-                        .map(Holder.Reference::value).orElse(null);
-                if (facilityType == null) {
-                    LOGGER.warn("Cannot find facility type: {}", typeStr);
-                    continue;
-                }
-                ListTag instanceListTag = typeTag.getList("instances", Tag.TAG_COMPOUND);
-                List<VillageFacility> facilityInstances = new ArrayList<>();
-                for (Tag instanceTag : instanceListTag) {
-                    CompoundTag instanceNbt = (CompoundTag) instanceTag;
-                    VillageFacility facility = VillageFacility.deserializeNBT(instanceNbt,
-                            facilityType);
-                    facilityInstances.add(facility);
-                }
-                villageData.facilities.put(facilityType, facilityInstances);
-            }
+        villageData.facilityManager = new FacilityManager(villageData.villageId);
+        if (nbt.contains("facilities", Tag.TAG_COMPOUND)) {
+            villageData.facilityManager.deserializeNBT(nbt.getCompound("facilities"), provider);
         }
+
+        LOGGER.info("Loaded village data: {} (ID: {}) - Level: {}, Population: {}, Status: {}",
+                villageData.villageName.getString(), villageData.villageId, villageData.villageLevel,
+                villageData.population, villageData.status);
         return villageData;
     }
 
@@ -227,9 +188,12 @@ public class VillageData {
         // 检查是否升级
         int requiredExp = getRequiredExpForNextLevel();
         if (this.villageExp >= requiredExp && this.villageLevel < 10) {
+            int oldLevel = this.villageLevel;
             this.villageLevel++;
             this.villageExp = 0;
             this.markDirty();
+            LOGGER.info("Village {} (ID: {}) leveled up from {} to {}", this.villageName.getString(),
+                    this.villageId, oldLevel, this.villageLevel);
             return true;
         }
 
@@ -358,35 +322,27 @@ public class VillageData {
     }
 
     /**
-     * 获取村庄设施列表
+     * 获取村庄设施管理器
      *
-     * @return 村庄设施列表
+     * @return 设施管理器实例
      */
-    public List<VillageFacility> getFacilitiesFromType(IFacilityType type) {
-        return new ArrayList<>(this.facilities.getOrDefault(type, Collections.emptyList()));
+    public FacilityManager getFacilityManager() {
+        return this.facilityManager;
     }
 
-    /**
-     * 添加村庄设施
-     *
-     * @param facility 要添加的设施
-     */
-    public void addFacility(VillageFacility facility) {
-        this.facilities.computeIfAbsent(facility.getFacilityType(), k -> new ArrayList<>())
-                .add(facility);
+    public void tick() {
+        this.facilityManager.tick();
+    }
+
+    @SuppressWarnings("deprecation")
+    public void registerFacility(VillageFacility facility) {
+        this.facilityManager.registerFacility(facility);
         this.markDirty();
     }
 
-    /**
-     * 移除村庄设施
-     *
-     * @param facility 要移除的设施
-     */
+    @SuppressWarnings("deprecation")
     public void removeFacility(VillageFacility facility) {
-        List<VillageFacility> list = this.facilities.get(facility.getFacilityType());
-        if (list != null) {
-            list.remove(facility);
-        }
+        this.facilityManager.removeFacility(facility);
         this.markDirty();
     }
 
@@ -414,11 +370,9 @@ public class VillageData {
      * @return 村庄信息字符串
      */
     public String getInfoOverview() {
-        return String.format(
-                "村庄: %s (等级%d) - 人口: %d - 状态: %s - 中心 : (%d, %d) - 边界 : %s",
-                this.getVillageName(), this.villageLevel, this.population,
-                this.status.getDisplayName(), this.centerPos.getX(), this.centerPos.getZ(),
-                this.boundingBox.toString());
+        return String.format("村庄: %s (等级%d) - 人口: %d - 状态: %s - 中心 : (%d, %d) - 边界 : %s",
+                this.getVillageName(), this.villageLevel, this.population, this.status.getDisplayName(),
+                this.centerPos.getX(), this.centerPos.getZ(), this.boundingBox.toString());
     }
 
     /**
@@ -481,9 +435,7 @@ public class VillageData {
 
     public CompoundTag save(CompoundTag nbt, HolderLookup.Provider provider) {
         nbt.putUUID("villageId", this.villageId);
-
         nbt.put("villageName", VillageNameGenerator.serializeNbt(this.villageName));
-
         nbt.putInt("villageLevel", this.villageLevel);
         nbt.putInt("villageExp", this.villageExp);
         nbt.putInt("population", this.population);
@@ -492,35 +444,18 @@ public class VillageData {
         nbt.putLong("lastUpdateTime", System.currentTimeMillis());
 
         nbt.putLong("centerPos", this.centerPos.asLong());
-        LOGGER.debug("village center pos: x={}, y={}, z={}", this.centerPos.getX(),
-                this.centerPos.getY(), this.centerPos.getZ());
 
         nbt.putString("status", this.status.name());
 
-        // 保存村民列表
         ListTag villagerList = new ListTag();
         for (UUID villagerId : this.villagers) {
             villagerList.add(StringTag.valueOf(villagerId.toString()));
         }
         nbt.put("villagers", villagerList);
 
-        // 保存设施列表
-        ListTag facilityList = new ListTag();
-        for (Map.Entry<IFacilityType, List<VillageFacility>> entry : this.facilities.entrySet()) {
-            IFacilityType facilityType = entry.getKey();
-            List<VillageFacility> facilityInstances = entry.getValue();
-            CompoundTag typeTag = new CompoundTag();
-            typeTag.putString("facilityType", facilityType.getFacilityType());
-            ListTag instanceListTag = new ListTag();
-            for (VillageFacility facility : facilityInstances) {
-                instanceListTag.add(facility.serializeNBT(provider));
-            }
-            typeTag.put("facilityInstances", instanceListTag);
-            facilityList.add(typeTag);
-        }
+        nbt.put("facilities", this.facilityManager.serializeNBT(provider));
 
-        nbt.put("facilities", facilityList);
-
+        LOGGER.info("Saved village data: {}", this.villageId);
         return nbt;
     }
 

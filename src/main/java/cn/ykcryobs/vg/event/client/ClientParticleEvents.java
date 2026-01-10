@@ -23,6 +23,8 @@ import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import java.util.Optional;
 
 /**
+ * 客户端事件处理类，用于处理与粒子渲染相关的事件
+ *
  * @author llykff
  */
 @EventBusSubscriber(modid = VillageGenesis.MOD_ID, value = Dist.CLIENT)
@@ -58,7 +60,7 @@ public class ClientParticleEvents {
             ItemStack itemStack = clientPlayer.getMainHandItem();
             if (itemStack.getItem() instanceof BoundaryScepterItem boundaryScepterItem) {
                 Optional<VillageData> villageData = VillageManager.getVillageData(
-                        boundaryScepterItem.getBoundedVillage(itemStack));
+                        BoundaryScepterItem.getBoundedVillage(itemStack));
                 if (villageData.isPresent()) {
                     renderVillageBoundary(level, villageData.get());
                     particleTickCounter = 0;

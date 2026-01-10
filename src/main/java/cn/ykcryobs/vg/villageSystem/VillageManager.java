@@ -6,6 +6,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.biome.Biome;
@@ -20,6 +21,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 /**
+ * 村庄管理器
+ *
  * @author llykff
  */
 public class VillageManager extends SavedData {
@@ -48,8 +51,7 @@ public class VillageManager extends SavedData {
             @Nullable TagKey<Biome> biome) {
         VillageData villageData = new VillageData(pos, boundingBox, biome, RANDOM);
 
-        VillageManager.getInstance().villageMap.putIfAbsent(villageData.getVillageId(),
-                villageData);
+        VillageManager.getInstance().villageMap.putIfAbsent(villageData.getVillageId(), villageData);
         markDirty();
     }
 
@@ -82,7 +84,7 @@ public class VillageManager extends SavedData {
     }
 
     /**
-     * 检查一个位置是否在任何村庄的范围内
+     * 获取一个位置所在的村庄（如果有）
      *
      * @param pos 要检查的位置
      * @return 村庄中心位置（第一个匹配的）
@@ -112,18 +114,18 @@ public class VillageManager extends SavedData {
      */
     public static boolean isPosInVillage(BlockPos pos, UUID villageId) {
 
-        return getVillageData(villageId).isPresent() && getVillageData(villageId).get()
-                .getBoundingBox().contains(pos);
+        return getVillageData(villageId).isPresent() && getVillageData(villageId).get().getBoundingBox()
+                .contains(pos);
     }
 
     public static VillageManager load(CompoundTag tag, HolderLookup.Provider registries) {
         ListTag villages = tag.getList("villages", CompoundTag.TAG_COMPOUND);
-        villages.forEach(villageTag -> {
+        for (Tag villageTag : villages) {
             VillageData villageData = VillageData.load((CompoundTag) villageTag, registries);
-            VillageManager.getInstance().villageMap.putIfAbsent(villageData.getVillageId(),
-                    villageData);
-        });
+            VillageManager.getInstance().villageMap.putIfAbsent(villageData.getVillageId(), villageData);
+        }
 
+        LOGGER.info("Loaded {} villages from world data", villages.size());
         return INSTANCE;
     }
 
@@ -135,13 +137,21 @@ public class VillageManager extends SavedData {
         return RANDOM;
     }
 
+    public void tick() {
+        // TODO 剔除不必要的村庄优化性能
+        this.villageMap.values().forEach(VillageData::tick);
+    }
+
     @Override
-    public @NotNull CompoundTag save(CompoundTag tag, HolderLookup.@NotNull Provider registries) {
+    public @NotNull CompoundTag save(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registries) {
         ListTag tagList = new ListTag();
-        villageMap.values().forEach(
-                villageData -> tagList.add(villageData.save(new CompoundTag(), registries)));
+        for (VillageData villageData : villageMap.values()) {
+            tagList.add(villageData.save(new CompoundTag(), registries));
+        }
 
         tag.put("villages", tagList);
+
+        LOGGER.info("Saved {} villages to world data", villageMap.size());
         return tag;
     }
 }

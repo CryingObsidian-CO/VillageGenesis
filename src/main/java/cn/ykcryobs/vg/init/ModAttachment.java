@@ -10,6 +10,8 @@ import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import java.util.function.Supplier;
 
 /**
+ * 附件类型注册器
+ *
  * @author llykff
  */
 public class ModAttachment {

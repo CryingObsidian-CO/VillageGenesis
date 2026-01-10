@@ -9,6 +9,8 @@ import net.minecraft.network.codec.StreamCodec;
 import java.util.UUID;
 
 /**
+ * 边界权杖组件
+ *
  * @author llykff
  */
 public class BoundaryScepterComponent {

@@ -9,6 +9,11 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import java.util.UUID;
 import java.util.function.Supplier;
 
+/**
+ * 数据组件注册器
+ *
+ * @author llykff
+ */
 public class ModDataComponents {
 
     public static final DeferredRegister.DataComponents REGISTRAR = DeferredRegister.createDataComponents(

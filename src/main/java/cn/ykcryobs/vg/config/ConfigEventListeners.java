@@ -11,7 +11,7 @@ import org.slf4j.Logger;
 /**
  * 配置事件监听器，处理配置变更和同步
  *
- * @author VillageGenesis Team
+ * @author llykff
  */
 @EventBusSubscriber(modid = VillageGenesis.MOD_ID)
 public class ConfigEventListeners {

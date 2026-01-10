@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * 通用配置类，包含客户端和服务器共享的配置项
  *
- * @author VillageGenesis Team
+ * @author llykff
  */
 public class CommonConfig {
 
@@ -38,57 +38,64 @@ public class CommonConfig {
 
         // 前缀配置（不随群系变化）
         villagePrefixes = ConfigUtils.defineStringList(builder, "villagePrefixes",
-                Arrays.asList("new", "old", "great", "little", "high", "low", "north", "south",
-                        "east", "west", "royal", "ancient", "noble"));
+                Arrays.asList("new", "old", "great", "little", "high", "low", "north", "south", "east",
+                        "west", "royal", "ancient", "noble"),
+                "Please add translation key in language file like 'village.village_genesis.name.prefix.xxx'");
 
         // 平原核心词
         villageCorePlains = ConfigUtils.defineStringList(builder, "villageCorePlains",
-                Arrays.asList("green", "meadow", "field", "farm", "grange", "acre", "vale", "hill",
-                        "brook", "crossing", "ford", "bridge", "plain", "grass"));
+                Arrays.asList("green", "meadow", "field", "farm", "grange", "acre", "vale", "hill", "brook",
+                        "crossing", "ford", "bridge", "plain", "grass"),
+                "Please add translation key in language file like 'village.village_genesis.name.core.plains.xxx'");
 
         // 沙漠核心词
         villageCoreDesert = ConfigUtils.defineStringList(builder, "villageCoreDesert",
-                Arrays.asList("dune", "dunes", "oasis", "harbor", "haven", "rest", "shade",
-                        "shelter", "refuge", "camp", "post", "station", "fort", "tower", "watch",
-                        "outpost"));
+                Arrays.asList("dune", "dunes", "oasis", "harbor", "haven", "rest", "shade", "shelter",
+                        "refuge", "camp", "post", "station", "fort", "tower", "watch", "outpost"),
+                "Please add translation key in language file like 'village.village_genesis.name.core.desert.xxx'");
 
         // 雪原核心词
         villageCoreSnowy = ConfigUtils.defineStringList(builder, "villageCoreSnowy",
-                Arrays.asList("frost", "ice", "snow", "blizzard", "winter", "freeze", "chill",
-                        "crystal", "glacier", "peak", "summit", "ridge", "slope", "haven",
-                        "shelter", "warmth"));
+                Arrays.asList("frost", "ice", "snow", "blizzard", "winter", "freeze", "chill", "crystal",
+                        "glacier", "peak", "summit", "ridge", "slope", "haven", "shelter", "warmth"),
+                "Please add translation key in language file like 'village.village_genesis.name.core.snowy.xxx'");
 
         // 针叶林核心词
         villageCoreTaiga = ConfigUtils.defineStringList(builder, "villageCoreTaiga",
-                Arrays.asList("pine", "spruce", "fir", "hemlock", "forest", "grove", "wood",
-                        "thicket", "branch", "needle", "timber", "lumber", "moss", "fern",
-                        "wilds"));
+                Arrays.asList("pine", "spruce", "fir", "hemlock", "forest", "grove", "wood", "thicket",
+                        "branch", "needle", "timber", "lumber", "moss", "fern", "wilds"),
+                "Please add translation key in language file like 'village.village_genesis.name.core.taiga.xxx'");
 
         // 热带草原核心词
         villageCoreSavanna = ConfigUtils.defineStringList(builder, "villageCoreSavanna",
-                Arrays.asList("acacia", "savanna", "plains", "grassland", "steppe", "prairie",
-                        "outback", "scrub", "bush", "veld", "table", "plateau", "mesa", "butte",
-                        "ridge", "view"));
+                Arrays.asList("acacia", "savanna", "plains", "grassland", "steppe", "prairie", "outback",
+                        "scrub", "bush", "veld", "table", "plateau", "mesa", "butte", "ridge", "view"),
+                "Please add translation key in language file like 'village.village_genesis.name.core.savanna.xxx'");
 
         // 平原后缀
         villageSuffixPlains = ConfigUtils.defineStringList(builder, "villageSuffixPlains",
-                Arrays.asList("village", "hamlet", "settlement", "town"));
+                Arrays.asList("village", "hamlet", "settlement", "town"),
+                "Please add translation key in language file like 'village.village_genesis.name.suffix.plains.xxx'");
 
         // 沙漠后缀
         villageSuffixDesert = ConfigUtils.defineStringList(builder, "villageSuffixDesert",
-                Arrays.asList("fort", "tower", "watch", "outpost", "station", "post"));
+                Arrays.asList("fort", "tower", "watch", "outpost", "station", "post"),
+                "Please add translation key in language file like 'village.village_genesis.name.suffix.desert.xxx'");
 
         // 雪原后缀
         villageSuffixSnowy = ConfigUtils.defineStringList(builder, "villageSuffixSnowy",
-                Arrays.asList("settlement", "fort", "haven", "shelter", "outpost"));
+                Arrays.asList("settlement", "fort", "haven", "shelter", "outpost"),
+                "Please add translation key in language file like 'village.village_genesis.name.suffix.snowy.xxx'");
 
         // 针叶林后缀
         villageSuffixTaiga = ConfigUtils.defineStringList(builder, "villageSuffixTaiga",
-                Arrays.asList("village", "settlement", "hamlet", "lodge", "camp"));
+                Arrays.asList("village", "settlement", "hamlet", "lodge", "camp"),
+                "Please add translation key in language file like 'village.village_genesis.name.suffix.taiga.xxx'");
 
         // 热带草原后缀
         villageSuffixSavanna = ConfigUtils.defineStringList(builder, "villageSuffixSavanna",
-                Arrays.asList("village", "settlement", "outpost", "station", "camp"));
+                Arrays.asList("village", "settlement", "outpost", "station", "camp"),
+                "Please add translation key in language file like 'village.village_genesis.name.suffix.savanna.xxx'");
         ConfigUtils.endCategory(builder);
 
         SPEC = builder.build();

@@ -8,7 +8,7 @@ import java.util.function.Predicate;
 /**
  * 配置工具类，提供配置相关的辅助方法
  *
- * @author VillageGenesis Team
+ * @author llykiff
  */
 public class ConfigUtils {
 
@@ -42,12 +42,12 @@ public class ConfigUtils {
     }
 
     /**
-     * Creates a boolean configuration value without comment
+     * 创建布尔值配置项（无注释）
      *
-     * @param builder      Config spec builder
-     * @param name         Configuration name
-     * @param defaultValue Default value
-     * @return Boolean configuration value
+     * @param builder      配置构建器
+     * @param name         配置项名称
+     * @param defaultValue 默认值
+     * @return 布尔值配置项
      */
     public static ModConfigSpec.BooleanValue defineBoolean(ModConfigSpec.Builder builder,
             String name, boolean defaultValue) {
@@ -55,13 +55,13 @@ public class ConfigUtils {
     }
 
     /**
-     * Creates a boolean configuration value with validator without comment
+     * 创建布尔值配置项（带验证，无注释）
      *
-     * @param builder      Config spec builder
-     * @param name         Configuration name
-     * @param defaultValue Default value
-     * @param validator    Validator function
-     * @return Boolean configuration value
+     * @param builder      配置构建器
+     * @param name         配置项名称
+     * @param defaultValue 默认值
+     * @param validator    验证器函数
+     * @return 布尔值配置项
      */
     public static ModConfigSpec.ConfigValue<Boolean> defineBoolean(ModConfigSpec.Builder builder,
             String name, boolean defaultValue, Predicate<Object> validator) {
@@ -100,12 +100,12 @@ public class ConfigUtils {
     }
 
     /**
-     * Creates an integer configuration value without comment
+     * 创建整数配置项（无注释）
      *
-     * @param builder      Config spec builder
-     * @param name         Configuration name
-     * @param defaultValue Default value
-     * @return Integer configuration value
+     * @param builder      配置构建器
+     * @param name         配置项名称
+     * @param defaultValue 默认值
+     * @return 整数配置项
      */
     public static ModConfigSpec.IntValue defineInt(ModConfigSpec.Builder builder, String name,
             int defaultValue) {
@@ -113,14 +113,14 @@ public class ConfigUtils {
     }
 
     /**
-     * Creates an integer configuration value with range without comment
+     * 创建整数配置项（带范围，无注释）
      *
-     * @param builder      Config spec builder
-     * @param name         Configuration name
-     * @param defaultValue Default value
-     * @param min          Minimum value
-     * @param max          Maximum value
-     * @return Integer configuration value
+     * @param builder      配置构建器
+     * @param name         配置项名称
+     * @param defaultValue 默认值
+     * @param min          最小值
+     * @param max          最大值
+     * @return 整数配置项
      */
     public static ModConfigSpec.IntValue defineInt(ModConfigSpec.Builder builder, String name,
             int defaultValue, int min, int max) {
@@ -159,12 +159,12 @@ public class ConfigUtils {
     }
 
     /**
-     * Creates a long configuration value without comment
+     * 创建长整数配置项（无注释）
      *
-     * @param builder      Config spec builder
-     * @param name         Configuration name
-     * @param defaultValue Default value
-     * @return Long configuration value
+     * @param builder      配置构建器
+     * @param name         配置项名称
+     * @param defaultValue 默认值
+     * @return 长整数配置项
      */
     public static ModConfigSpec.LongValue defineLong(ModConfigSpec.Builder builder, String name,
             long defaultValue) {
@@ -172,14 +172,14 @@ public class ConfigUtils {
     }
 
     /**
-     * Creates a long configuration value with range without comment
+     * 创建长整数配置项（带范围，无注释）
      *
-     * @param builder      Config spec builder
-     * @param name         Configuration name
-     * @param defaultValue Default value
-     * @param min          Minimum value
-     * @param max          Maximum value
-     * @return Long configuration value
+     * @param builder      配置构建器
+     * @param name         配置项名称
+     * @param defaultValue 默认值
+     * @param min          最小值
+     * @param max          最大值
+     * @return 长整数配置项
      */
     public static ModConfigSpec.LongValue defineLong(ModConfigSpec.Builder builder, String name,
             long defaultValue, long min, long max) {
@@ -218,12 +218,12 @@ public class ConfigUtils {
     }
 
     /**
-     * Creates a double configuration value without comment
+     * 创建双精度浮点数配置项（无注释）
      *
-     * @param builder      Config spec builder
-     * @param name         Configuration name
-     * @param defaultValue Default value
-     * @return Double configuration value
+     * @param builder      配置构建器
+     * @param name         配置项名称
+     * @param defaultValue 默认值
+     * @return 双精度浮点数配置项
      */
     public static ModConfigSpec.DoubleValue defineDouble(ModConfigSpec.Builder builder, String name,
             double defaultValue) {
@@ -231,14 +231,14 @@ public class ConfigUtils {
     }
 
     /**
-     * Creates a double configuration value with range without comment
+     * 创建双精度浮点数配置项（带范围，无注释）
      *
-     * @param builder      Config spec builder
-     * @param name         Configuration name
-     * @param defaultValue Default value
-     * @param min          Minimum value
-     * @param max          Maximum value
-     * @return Double configuration value
+     * @param builder      配置构建器
+     * @param name         配置项名称
+     * @param defaultValue 默认值
+     * @param min          最小值
+     * @param max          最大值
+     * @return 双精度浮点数配置项
      */
     public static ModConfigSpec.DoubleValue defineDouble(ModConfigSpec.Builder builder, String name,
             double defaultValue, double min, double max) {
@@ -275,12 +275,12 @@ public class ConfigUtils {
     }
 
     /**
-     * Creates a string configuration value without comment
+     * 创建字符串配置项（无注释）
      *
-     * @param builder      Config spec builder
-     * @param name         Configuration name
-     * @param defaultValue Default value
-     * @return String configuration value
+     * @param builder      配置构建器
+     * @param name         配置项名称
+     * @param defaultValue 默认值
+     * @return 字符串配置项
      */
     public static ModConfigSpec.ConfigValue<String> defineString(ModConfigSpec.Builder builder,
             String name, String defaultValue) {
@@ -288,13 +288,13 @@ public class ConfigUtils {
     }
 
     /**
-     * Creates a string configuration value with validator without comment
+     * 创建字符串配置项（带验证，无注释）
      *
-     * @param builder      Config spec builder
-     * @param name         Configuration name
-     * @param defaultValue Default value
-     * @param validator    Validator function
-     * @return String configuration value
+     * @param builder      配置构建器
+     * @param name         配置项名称
+     * @param defaultValue 默认值
+     * @param validator    验证器函数
+     * @return 字符串配置项
      */
     public static ModConfigSpec.ConfigValue<String> defineString(ModConfigSpec.Builder builder,
             String name, String defaultValue, Predicate<Object> validator) {
@@ -318,12 +318,12 @@ public class ConfigUtils {
     }
 
     /**
-     * Creates a string list configuration value without comment
+     * 创建字符串列表配置项（无注释）
      *
-     * @param builder      Config spec builder
-     * @param name         Configuration name
-     * @param defaultValue Default value
-     * @return String list configuration value
+     * @param builder      配置构建器
+     * @param name         配置项名称
+     * @param defaultValue 默认值
+     * @return 字符串列表配置项
      */
     public static ModConfigSpec.ConfigValue<List<? extends String>> defineStringList(
             ModConfigSpec.Builder builder, String name, List<? extends String> defaultValue) {
@@ -348,14 +348,14 @@ public class ConfigUtils {
     }
 
     /**
-     * Creates an enum configuration value without comment
+     * 创建枚举配置项（无注释）
      *
-     * @param builder      Config spec builder
-     * @param name         Configuration name
-     * @param enumClass    Enum class
-     * @param defaultValue Default value
-     * @param <T>          Enum type
-     * @return Enum configuration value
+     * @param builder      配置构建器
+     * @param name         配置项名称
+     * @param enumClass    枚举类
+     * @param defaultValue 默认值
+     * @param <T>          枚举类型
+     * @return 枚举配置项
      */
     public static <T extends Enum<T>> ModConfigSpec.EnumValue<T> defineEnum(
             ModConfigSpec.Builder builder, String name, Class<T> enumClass, T defaultValue) {
@@ -375,10 +375,10 @@ public class ConfigUtils {
     }
 
     /**
-     * Creates a configuration category without comment
+     * 创建配置分类（无注释）
      *
-     * @param builder      Config spec builder
-     * @param categoryName Category name
+     * @param builder      配置构建器
+     * @param categoryName 分类名称
      */
     public static void defineCategory(ModConfigSpec.Builder builder, String categoryName) {
         builder.push(categoryName);

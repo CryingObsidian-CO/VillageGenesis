@@ -136,6 +136,12 @@ public class VillageNameGenerator {
         }
     }
 
+    /**
+     * 将村庄名称组件序列化为NBT标签
+     *
+     * @param nameComponent 要序列化的村庄名称组件
+     * @return 序列化后的NBT标签
+     */
     public static CompoundTag serializeNbt(Component nameComponent) {
         CompoundTag nbt = new CompoundTag();
         String prefixKey = "";
@@ -158,6 +164,12 @@ public class VillageNameGenerator {
         return nbt;
     }
 
+    /**
+     * 从NBT标签反序列化村庄名称组件
+     *
+     * @param nbt 包含村庄名称数据的NBT标签
+     * @return 反序列化后的村庄名称组件
+     */
     public static Component deserializeNbt(CompoundTag nbt) {
         String prefixKey = nbt.getString("prefixKey");
         String coreKey = nbt.getString("coreKey");
