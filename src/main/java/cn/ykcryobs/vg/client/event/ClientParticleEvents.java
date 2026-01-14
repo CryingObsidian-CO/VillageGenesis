@@ -1,7 +1,8 @@
-package cn.ykcryobs.vg.event.client;
+package cn.ykcryobs.vg.client.event;
 
 import cn.ykcryobs.vg.VillageGenesis;
 import cn.ykcryobs.vg.config.ClientConfig;
+import cn.ykcryobs.vg.dataComponents.BoundaryScepterComponent;
 import cn.ykcryobs.vg.item.BoundaryScepterItem;
 import cn.ykcryobs.vg.utils.BoundingBox2D;
 import cn.ykcryobs.vg.villageSystem.VillageData;
@@ -58,9 +59,9 @@ public class ClientParticleEvents {
         Level level = clientPlayer.level();
         if (level.isClientSide()) {
             ItemStack itemStack = clientPlayer.getMainHandItem();
-            if (itemStack.getItem() instanceof BoundaryScepterItem boundaryScepterItem) {
+            if (itemStack.getItem() instanceof BoundaryScepterItem) {
                 Optional<VillageData> villageData = VillageManager.getVillageData(
-                        BoundaryScepterItem.getBoundedVillage(itemStack));
+                        BoundaryScepterComponent.getBoundedVillage(itemStack));
                 if (villageData.isPresent()) {
                     renderVillageBoundary(level, villageData.get());
                     particleTickCounter = 0;

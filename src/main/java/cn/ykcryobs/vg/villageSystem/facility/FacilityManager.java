@@ -1,6 +1,7 @@
 package cn.ykcryobs.vg.villageSystem.facility;
 
-import cn.ykcryobs.vg.init.ModDataPackRegistries;
+import cn.ykcryobs.vg.init.ModDataPack;
+import cn.ykcryobs.vg.villageSystem.VillageManager;
 import cn.ykcryobs.vg.villageSystem.facility.types.FacilityType;
 import cn.ykcryobs.vg.villageSystem.facility.types.interfaces.IFacilityCategory;
 import com.mojang.logging.LogUtils;
@@ -43,6 +44,7 @@ public class FacilityManager {
         this.villageId = villageId;
         this.facilities = new HashMap<>();
         this.positionToFacilityMap = new HashMap<>();
+        this.markDirty();
     }
 
     /**
@@ -290,19 +292,15 @@ public class FacilityManager {
      * @param provider 注册提供器
      * @return 序列化后的NBT数据
      */
-    public CompoundTag serializeNBT(HolderLookup.Provider provider) {
-        CompoundTag nbt = new CompoundTag();
-
+    public ListTag serializeNBT(HolderLookup.Provider provider) {
         ListTag facilitiesList = new ListTag();
         for (VillageFacility facility : this.getAllFacilities()) {
             CompoundTag facilityTag = facility.serializeNBT(provider);
             facilitiesList.add(facilityTag);
         }
-        nbt.put("facilities", facilitiesList);
-
         LOGGER.info("Serialized facility manager: {} facilities", getFacilityCount());
 
-        return nbt;
+        return facilitiesList;
     }
 
     /**
@@ -316,7 +314,7 @@ public class FacilityManager {
         this.positionToFacilityMap.clear();
 
         HolderLookup.RegistryLookup<FacilityType> facilityRegistry = provider.lookupOrThrow(
-                ModDataPackRegistries.FACILITY_REGISTRY_KEY);
+                ModDataPack.FACILITY_REGISTRY_KEY);
 
         ListTag facilitiesList = nbt.getList("facilities", Tag.TAG_COMPOUND);
         int loadedCount = 0;
@@ -325,7 +323,7 @@ public class FacilityManager {
             String typeName = facilityTag.getString("facilityType");
 
             ResourceKey<FacilityType> resourceKey = ResourceKey.create(
-                    ModDataPackRegistries.FACILITY_REGISTRY_KEY, ResourceLocation.parse(typeName));
+                    ModDataPack.FACILITY_REGISTRY_KEY, ResourceLocation.parse(typeName));
             Holder<FacilityType> facilityHolder = facilityRegistry.get(resourceKey).orElse(null);
 
             FacilityType facilityType = facilityHolder != null ? facilityHolder.value() : null;
@@ -359,5 +357,12 @@ public class FacilityManager {
      */
     public UUID getVillageId() {
         return this.villageId;
+    }
+
+    /**
+     * 标记设施管理器为脏状态，需要保存
+     */
+    public void markDirty() {
+        VillageManager.markDirty();
     }
 }

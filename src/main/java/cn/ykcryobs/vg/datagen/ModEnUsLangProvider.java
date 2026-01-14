@@ -1,6 +1,7 @@
 package cn.ykcryobs.vg.datagen;
 
 import cn.ykcryobs.vg.VillageGenesis;
+import cn.ykcryobs.vg.init.ModBlocks;
 import cn.ykcryobs.vg.init.ModItems;
 import net.minecraft.data.PackOutput;
 import net.neoforged.neoforge.common.data.LanguageProvider;
@@ -45,6 +46,9 @@ public class ModEnUsLangProvider extends LanguageProvider {
         add("village_genesis.configuration.durabilityThresholdToNeedMaintenance.tooltip",
                 "The durability threshold to need maintenance.(0-100)%");
 
+        // blocks
+        addBlock(ModBlocks.VILLAGE_INFO_PANEL, "Village Info Panel");
+
         // items
         addItem(ModItems.BOUNDARY_SCEPTER, "Boundary Scepter");
 
@@ -53,8 +57,41 @@ public class ModEnUsLangProvider extends LanguageProvider {
         add("tooltip.village_genesis.boundary_scepter.not_bound", "Not Bound");
         add("tooltip.village_genesis.boundary_scepter.bound_unknown", "Bound Unknown Village");
 
-        //messages
+        // messages
         add("message.village_genesis.not_in_village", "You are not in any village.");
+
+        // evolution stages
+        add("village.village_genesis.evolution_stage.primitive", "Primitive");
+        add("village.village_genesis.evolution_stage.agricultural", "Agricultural");
+        add("village.village_genesis.evolution_stage.handicraft", "Handicraft");
+        add("village.village_genesis.evolution_stage.commercial", "Commercial");
+        add("village.village_genesis.evolution_stage.industrial", "Industrial");
+        add("village.village_genesis.evolution_stage.modern", "Modern");
+
+        // village status
+        add("village.village_genesis.status.developing", "Developing");
+        add("village.village_genesis.status.stagnant", "Stagnant");
+        add("village.village_genesis.status.declining", "Declining");
+        add("village.village_genesis.status.abandoned", "Abandoned");
+
+        // GUI translations for Village Info Panel
+        add("gui.village_genesis.village_info_title", "Village Info Panel");
+        add("gui.village_genesis.close", "Close");
+        add("gui.village_genesis.loading", "loading...");
+        add("gui.village_genesis.info_category.basic_info", "Basic Info");
+        add("gui.village_genesis.info_category.tooltip.basic_info",
+                "View basic info and overview of the village.");
+        add("gui.village_genesis.info_category.villager_list", "Villager List");
+        add("gui.village_genesis.info_category.tooltip.villager_list", "View villager list of the village.");
+        add("gui.village_genesis.info_category.facility_list", "Facility List");
+        add("gui.village_genesis.info_category.tooltip.facility_list", "View facility list of the village.");
+        add("village_info_panel.village_genesis.village_name", "Village Name : %s");
+        add("village_info_panel.village_genesis.village_level", "Village Level : %s");
+        add("village_info_panel.village_genesis.village_exp", "Village Exp : %s");
+        add("village_info_panel.village_genesis.village_next_exp", "Next Level Exp : %s");
+        add("village_info_panel.village_genesis.village_population", "Village Population : %s");
+        add("village_info_panel.village_genesis.village_status", "Village Status : %s");
+        add("village_info_panel.village_genesis.facility_count", "Facility Count : %s");
     }
 
     private void addVillageNamePartTranslations() {

@@ -1,6 +1,7 @@
 package cn.ykcryobs.vg.datagen.provider;
 
 import cn.ykcryobs.vg.VillageGenesis;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
@@ -83,32 +84,39 @@ public abstract class FacilityDataProvider implements DataProvider {
      *
      * @return 设施类型数据构建器实例
      */
-    protected FacilityDataBuilder createFacilityData() {
+    public FacilityDataBuilder createFacilityData() {
         return new FacilityDataBuilder();
     }
 
+    /**
+     * 创建最大耐久度数据构建器
+     *
+     * @return 最大耐久度数据构建器实例
+     */
+    public MaxDurabilityBuilder createMaxDurabilityBuilder() {
+        return new MaxDurabilityBuilder();
+    }
+
     private FacilityDataBuilder createFacility(String facilityTypeIdentifier, String facilityTypeName,
-            int baseCapacity,
-            int maxLevel, int requiredVillageLevel, int buildTime) {
+            int baseCapacity, int maxLevel, int requiredVillageLevel, int buildTime,
+            JsonArray maxDurability) {
         return createFacilityData().facilityTypeIdentifier(facilityTypeIdentifier)
-                .facilityTypeName(facilityTypeName)
-                .baseCapacity(baseCapacity).maxLevel(maxLevel).requiredVillageLevel(requiredVillageLevel)
-                .buildTime(buildTime);
+                .facilityTypeName(facilityTypeName).baseCapacity(baseCapacity).maxLevel(maxLevel)
+                .requiredVillageLevel(requiredVillageLevel).buildTime(buildTime).maxDurability(maxDurability);
     }
 
     public FacilityDataBuilder createVillageCenter(String facilityTypeIdentifier, String facilityTypeName,
-            int baseCapacity, int maxLevel, int requiredVillageLevel, int buildTime) {
+            int baseCapacity, int maxLevel, int requiredVillageLevel, int buildTime,
+            JsonArray maxDurability) {
         return createFacility(facilityTypeIdentifier, facilityTypeName, baseCapacity, maxLevel,
-                requiredVillageLevel,
-                buildTime);
+                requiredVillageLevel, buildTime, maxDurability);
     }
 
     public FacilityDataBuilder createThatchedHut(String facilityTypeIdentifier, String facilityTypeName,
-            int baseCapacity, int maxLevel, int requiredVillageLevel, int buildTime,
+            int baseCapacity, int maxLevel, int requiredVillageLevel, int buildTime, JsonArray maxDurability,
             boolean isMultiResident) {
         return createFacility(facilityTypeIdentifier, facilityTypeName, baseCapacity, maxLevel,
-                requiredVillageLevel,
-                buildTime).isMultiResident(isMultiResident);
+                requiredVillageLevel, buildTime, maxDurability).isMultiResident(isMultiResident);
     }
 
     public static class FacilityDataBuilder {
@@ -150,6 +158,11 @@ public abstract class FacilityDataProvider implements DataProvider {
             return this;
         }
 
+        public FacilityDataBuilder maxDurability(JsonArray maxDurability) {
+            json.add("max_durability", maxDurability);
+            return this;
+        }
+
         public FacilityDataBuilder canBirthBaby(boolean canBirthBaby) {
             json.addProperty("can_birth_baby", canBirthBaby);
             return this;
@@ -161,6 +174,48 @@ public abstract class FacilityDataProvider implements DataProvider {
         }
 
         public JsonObject build() {
+            return json;
+        }
+    }
+
+    public static class MaxDurabilityBuilder {
+
+        private final JsonArray json = new JsonArray();
+
+        public static JsonArray createEmptyMaxDurability() {
+            return new MaxDurabilityBuilder().build();
+        }
+
+        public static JsonArray createMaxDurability(int durability) {
+            return new MaxDurabilityBuilder().add(durability).build();
+        }
+
+        public static JsonArray createMaxDurability(int durability1, int durability2) {
+            return new MaxDurabilityBuilder().add(durability1).add(durability2).build();
+        }
+
+        public static JsonArray createMaxDurability(int durability1, int durability2, int durability3) {
+            return new MaxDurabilityBuilder().add(durability1).add(durability2).add(durability3).build();
+        }
+
+        public static JsonArray createMaxDurability(int durability1, int durability2, int durability3,
+                int durability4) {
+            return new MaxDurabilityBuilder().add(durability1).add(durability2).add(durability3)
+                    .add(durability4).build();
+        }
+
+        public static JsonArray createMaxDurability(int durability1, int durability2, int durability3,
+                int durability4, int durability5) {
+            return new MaxDurabilityBuilder().add(durability1).add(durability2).add(durability3)
+                    .add(durability4).add(durability5).build();
+        }
+
+        public MaxDurabilityBuilder add(int durability) {
+            json.add(durability);
+            return this;
+        }
+
+        public JsonArray build() {
             return json;
         }
     }

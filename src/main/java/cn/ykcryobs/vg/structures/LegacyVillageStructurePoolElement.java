@@ -1,6 +1,6 @@
 package cn.ykcryobs.vg.structures;
 
-import cn.ykcryobs.vg.init.ModRegistries;
+import cn.ykcryobs.vg.init.ModStructurePoolRegistries;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -95,7 +95,7 @@ public class LegacyVillageStructurePoolElement extends VillageStructurePoolEleme
 
     @Override
     public @NotNull StructurePoolElementType<?> getType() {
-        return ModRegistries.LEGACY_VILLAGE.get();
+        return ModStructurePoolRegistries.LEGACY_VILLAGE.get();
     }
 
     @Override

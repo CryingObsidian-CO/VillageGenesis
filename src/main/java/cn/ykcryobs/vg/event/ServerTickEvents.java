@@ -1,4 +1,4 @@
-package cn.ykcryobs.vg.event.server;
+package cn.ykcryobs.vg.event;
 
 import cn.ykcryobs.vg.VillageGenesis;
 import cn.ykcryobs.vg.villageSystem.VillageManager;

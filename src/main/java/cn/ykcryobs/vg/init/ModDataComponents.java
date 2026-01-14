@@ -1,9 +1,10 @@
 package cn.ykcryobs.vg.init;
 
 import cn.ykcryobs.vg.VillageGenesis;
-import cn.ykcryobs.vg.item.dataComponents.BoundaryScepterComponent;
+import cn.ykcryobs.vg.dataComponents.BoundaryScepterComponent;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
+import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.util.UUID;
@@ -23,4 +24,7 @@ public class ModDataComponents {
             "bounded_village", builder -> builder.persistent(BoundaryScepterComponent.UUID_CODEC)
                     .networkSynchronized(BoundaryScepterComponent.UUID_STREAM_CODEC));
 
+    public static void register(IEventBus modEventBus) {
+        REGISTRAR.register(modEventBus);
+    }
 }

@@ -7,7 +7,9 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.MapCodec;
 import org.slf4j.Logger;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -22,6 +24,7 @@ public abstract class FacilityType implements IFacilityCategory {
     protected int requiredVillageLevel;
     protected int buildTime;
     protected String facilityTypeName;
+    protected List<Integer> maxDurability;
 
     /**
      * 构造函数，初始化设施类型的基本属性
@@ -32,21 +35,59 @@ public abstract class FacilityType implements IFacilityCategory {
      * @param requiredVillageLevel   所需村庄等级
      * @param buildTime              建造时间
      * @param facilityTypeName       设施名称
-     * @param isDurabilityAffected   是否受耐久影响
      */
     protected FacilityType(String facilityTypeIdentifier, int baseCapacity, int maxLevel,
-            int requiredVillageLevel, int buildTime, String facilityTypeName, boolean isDurabilityAffected) {
+            int requiredVillageLevel, int buildTime, String facilityTypeName) {
+        this(facilityTypeIdentifier, baseCapacity, maxLevel, requiredVillageLevel, buildTime,
+                facilityTypeName, Collections.emptyList());
+    }
+
+    /**
+     * 构造函数，初始化设施类型的基本属性
+     *
+     * @param facilityTypeIdentifier 设施类型标识符（仅作 dispatchCodec 的标识，无意义）
+     * @param baseCapacity           基础容量
+     * @param maxLevel               最大等级
+     * @param requiredVillageLevel   所需村庄等级
+     * @param buildTime              建造时间
+     * @param facilityTypeName       设施名称
+     * @param maxDurability          最大耐久度（每个等级的最大耐久度相同）
+     */
+    protected FacilityType(String facilityTypeIdentifier, int baseCapacity, int maxLevel,
+            int requiredVillageLevel, int buildTime, String facilityTypeName, int maxDurability) {
+        this(facilityTypeIdentifier, baseCapacity, maxLevel, requiredVillageLevel, buildTime,
+                facilityTypeName, Collections.nCopies(maxLevel, maxDurability));
+    }
+
+    /**
+     * 构造函数，初始化设施类型的基本属性
+     *
+     * @param facilityTypeIdentifier 设施类型标识符（仅作 dispatchCodec 的标识，无意义）
+     * @param baseCapacity           基础容量
+     * @param maxLevel               最大等级
+     * @param requiredVillageLevel   所需村庄等级
+     * @param buildTime              建造时间
+     * @param facilityTypeName       设施名称
+     * @param maxDurability          最大耐久度列表（每个等级的最大耐久度）
+     */
+    protected FacilityType(String facilityTypeIdentifier, int baseCapacity, int maxLevel,
+            int requiredVillageLevel, int buildTime, String facilityTypeName, List<Integer> maxDurability) {
         this.baseCapacity = baseCapacity;
         this.maxLevel = maxLevel;
         this.requiredVillageLevel = requiredVillageLevel;
         this.buildTime = buildTime;
         this.facilityTypeName = facilityTypeName;
+        this.maxDurability = maxDurability;
     }
 
     public abstract String getFacilityTypeIdentifier();
 
     public String getFacilityTypeName() {
         return this.facilityTypeName;
+    }
+
+    protected List<Integer> getMaxDurability() {
+        return this.maxDurability;
     }
 
     public void tick() {
@@ -70,6 +111,18 @@ public abstract class FacilityType implements IFacilityCategory {
     @Override
     public int getBuildTime() {
         return this.buildTime;
+    }
+
+    @Override
+    public int getMaxDurability(int level) {
+        if (this.maxDurability == null || this.maxDurability.isEmpty()) {
+            return 0;
+        }
+        int index = level - 1;
+        if (index < 0 || index >= this.maxDurability.size()) {
+            return 0;
+        }
+        return this.maxDurability.get(index);
     }
 
     @Override

@@ -18,6 +18,8 @@ public class ModBlockStatesProvider extends BlockStateProvider {
 
     @Override
     protected void registerStatesAndModels() {
-        // simpleBlockWithItem();
+        // 为村庄信息面板注册简单方块状态和模型
+//        simpleBlock(ModBlocks.VILLAGE_INFO_PANEL.get(), cubeAll(ModBlocks.VILLAGE_INFO_PANEL.get()));
+//        simpleBlockItem(ModBlocks.VILLAGE_INFO_PANEL.get(), cubeAll(ModBlocks.VILLAGE_INFO_PANEL.get()));
     }
 }

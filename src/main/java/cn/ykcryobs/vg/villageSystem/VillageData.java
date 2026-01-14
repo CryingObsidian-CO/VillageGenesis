@@ -54,8 +54,12 @@ public class VillageData {
     private Set<UUID> villagers;
     // 村庄设施管理器
     private FacilityManager facilityManager;
+    // 村庄演进阶段
+    private VillageEvolutionStage evolutionStage;
+    // 下一级所需经验值缓存
+    private int requiredExpForNextLevelCache;
 
-    public VillageData() {
+    private VillageData() {
         this.villageId = null;
         this.villageName = null;
         this.centerPos = null;
@@ -65,9 +69,11 @@ public class VillageData {
         this.population = 0;
         this.createdTime = 0;
         this.lastUpdateTime = 0;
-        this.status = VillageStatus.DEVELOPING;
+        this.status = null;
         this.villagers = null;
         this.facilityManager = null;
+        this.evolutionStage = null;
+        this.getRequiredExpForNextLevel(true);
     }
 
     public VillageData(BlockPos centerPos, BoundingBox2D boundingBox, @Nullable TagKey<Biome> holder,
@@ -76,7 +82,7 @@ public class VillageData {
         this.villageName = VillageNameGenerator.generateVillageName(holder, random);
         this.centerPos = centerPos;
         this.boundingBox = boundingBox;
-        this.villageLevel = 0;
+        this.villageLevel = 1;
         this.villageExp = 0;
         this.population = 0;
         this.createdTime = VillageGenesis.getGameTime();
@@ -84,6 +90,9 @@ public class VillageData {
         this.status = VillageStatus.DEVELOPING;
         this.villagers = new HashSet<>();
         this.facilityManager = new FacilityManager(this.villageId);
+        this.evolutionStage = VillageEvolutionStage.getEvolutionStage(this.villageLevel);
+        this.getRequiredExpForNextLevel(true);
+        this.markDirty();
     }
 
     public static VillageData load(CompoundTag nbt, HolderLookup.Provider provider) {
@@ -111,13 +120,16 @@ public class VillageData {
         }
 
         villageData.facilityManager = new FacilityManager(villageData.villageId);
-        if (nbt.contains("facilities", Tag.TAG_COMPOUND)) {
-            villageData.facilityManager.deserializeNBT(nbt.getCompound("facilities"), provider);
+        if (nbt.contains("facilities", Tag.TAG_LIST)) {
+            villageData.facilityManager.deserializeNBT(nbt, provider);
         }
 
-        LOGGER.info("Loaded village data: {} (ID: {}) - Level: {}, Population: {}, Status: {}",
+        villageData.evolutionStage = VillageEvolutionStage.getEvolutionStage(villageData.villageLevel);
+
+        LOGGER.info("Loaded village data: {} (ID: {}) - Level: {}, Stage: {}, Population: {}, Status: {}",
                 villageData.villageName.getString(), villageData.villageId, villageData.villageLevel,
-                villageData.population, villageData.status);
+                villageData.evolutionStage.getDisplayName().getString(), villageData.population,
+                villageData.status);
         return villageData;
     }
 
@@ -164,7 +176,9 @@ public class VillageData {
      * @param villageLevel 新的村庄等级
      */
     public void setVillageLevel(int villageLevel) {
-        this.villageLevel = Math.max(1, Math.min(10, villageLevel));
+        this.villageLevel = Math.max(1, villageLevel);
+        this.getRequiredExpForNextLevel(true);
+        this.evolutionStage = VillageEvolutionStage.getEvolutionStage(this.villageLevel);
         this.markDirty();
     }
 
@@ -187,13 +201,26 @@ public class VillageData {
         this.villageExp += exp;
         // 检查是否升级
         int requiredExp = getRequiredExpForNextLevel();
-        if (this.villageExp >= requiredExp && this.villageLevel < 10) {
+        if (this.villageExp >= requiredExp) {
             int oldLevel = this.villageLevel;
-            this.villageLevel++;
-            this.villageExp = 0;
+            this.setVillageLevel(this.villageLevel + 1);
+            this.villageExp -= requiredExp;
+
+            // 检查演进阶段是否变化
+            VillageEvolutionStage oldStage = this.evolutionStage;
+            this.evolutionStage = VillageEvolutionStage.getEvolutionStage(this.villageLevel);
+
+            if (oldStage != this.evolutionStage) {
+                // TODO 触发阶段变化事件
+                LOGGER.info("Village {} (ID: {}) evolved from {} to {}", this.villageName.getString(),
+                        this.villageId, oldStage.getDisplayName().getString(),
+                        this.evolutionStage.getDisplayName().getString());
+            }
+
             this.markDirty();
-            LOGGER.info("Village {} (ID: {}) leveled up from {} to {}", this.villageName.getString(),
-                    this.villageId, oldLevel, this.villageLevel);
+            LOGGER.info("Village {} (ID: {}) leveled up from {} to {}, Evolution Stage: {}",
+                    this.villageName.getString(), this.villageId, oldLevel, this.villageLevel,
+                    this.evolutionStage.getDisplayName().getString());
             return true;
         }
 
@@ -202,16 +229,35 @@ public class VillageData {
     }
 
     /**
-     * 获取下一级所需经验值
+     * 获取下一级所需经验值）
      *
      * @return 下一级所需经验值
      */
     public int getRequiredExpForNextLevel() {
-        if (this.villageLevel >= 10) {
-            return -1;
+        return this.getRequiredExpForNextLevel(false);
+    }
+
+    /**
+     * 获取下一级所需经验值
+     *
+     * @param force 是否强制重新计算
+     * @return 下一级所需经验值
+     */
+    public int getRequiredExpForNextLevel(boolean force) {
+        // 如果缓存存在且不需要强制刷新，直接返回缓存值
+        if (!force) {
+            return this.requiredExpForNextLevelCache;
         }
-        // 计算下一级所需经验值，递增算法
-        return this.villageLevel * 100 + (this.villageLevel - 1) * 50;
+
+        // NOTE 暂时用 log 曲线公式：baseExp * log(level + 1) * levelMultiplier
+        double baseExp = 50.0;
+        double levelMultiplier = 15.0;
+        double logTerm = Math.log(this.villageLevel + 1);
+        int requiredExp = (int) Math.round(baseExp * logTerm * this.villageLevel * levelMultiplier);
+
+        // 缓存结果，避免重复计算
+        this.requiredExpForNextLevelCache = requiredExp;
+        return requiredExp;
     }
 
     /**
@@ -330,6 +376,15 @@ public class VillageData {
         return this.facilityManager;
     }
 
+    /**
+     * 获取当前演进阶段
+     *
+     * @return 当前演进阶段
+     */
+    public VillageEvolutionStage getEvolutionStage() {
+        return this.evolutionStage;
+    }
+
     public void tick() {
         this.facilityManager.tick();
     }
@@ -370,14 +425,16 @@ public class VillageData {
      * @return 村庄信息字符串
      */
     public String getInfoOverview() {
-        return String.format("村庄: %s (等级%d) - 人口: %d - 状态: %s - 中心 : (%d, %d) - 边界 : %s",
-                this.getVillageName(), this.villageLevel, this.population, this.status.getDisplayName(),
-                this.centerPos.getX(), this.centerPos.getZ(), this.boundingBox.toString());
+        return String.format("村庄: %s (等级%d/%s) - 人口: %d - 状态: %s - 中心 : (%d, %d) - 边界 : %s",
+                this.getVillageName(), this.villageLevel, this.evolutionStage.getDisplayName().getString(),
+                this.population, this.status.getDisplayName().getString(), this.centerPos.getX(),
+                this.centerPos.getZ(), this.boundingBox.toString());
     }
 
     /**
      * 标记数据为脏数据，需要保存
      */
+    // markDirty (特别是对于 tick 这类高频方法是否添加 markDirty 或者干脆单独把他们 saveData)
     private void markDirty() {
         this.lastUpdateTime = VillageGenesis.getGameTime();
         VillageManager.markDirty();
@@ -497,9 +554,106 @@ public class VillageData {
          * @return 显示名称
          */
         public Component getDisplayName() {
-            return Component.translatable("village.village_genesis." + this.id);
+            return Component.translatable("village.village_genesis.status." + this.id);
         }
     }
 
+    /**
+     * 村庄演进阶段枚举
+     */
+    public enum VillageEvolutionStage {
+        /**
+         * 原始部落阶段 - 基础生存，物物交换
+         */
+        PRIMITIVE(1, 10, "primitive"),
+        /**
+         * 农业村庄阶段 - 农业发展，简单设施
+         */
+        AGRICULTURAL(11, 20, "agricultural"),
+        /**
+         * 手工业城镇阶段 - 手工业兴起，金属工具
+         */
+        HANDICRAFT(21, 30, "handicraft"),
+        /**
+         * 商业都市阶段 - 贸易繁荣，复杂经济
+         */
+        COMMERCIAL(31, 40, "commercial"),
+        /**
+         * 工业城市阶段 - 工业化生产，科技发展
+         */
+        INDUSTRIAL(41, 50, "industrial"),
+        /**
+         * 现代都市阶段 - 高度发达，信息化
+         */
+        MODERN(51, Integer.MAX_VALUE, "modern");
+
+        private final int minLevel;
+        private final int maxLevel;
+        private final String id;
+
+        /**
+         * 构造函数
+         *
+         * @param minLevel 最低等级
+         * @param maxLevel 最高等级
+         * @param id       阶段ID，用于翻译键
+         */
+        VillageEvolutionStage(int minLevel, int maxLevel, String id) {
+            this.minLevel = minLevel;
+            this.maxLevel = maxLevel;
+            this.id = id;
+        }
+
+        /**
+         * 根据等级获取对应的演进阶段
+         *
+         * @param level 村庄等级
+         * @return 对应的演进阶段
+         */
+        public static VillageEvolutionStage getEvolutionStage(int level) {
+            for (VillageEvolutionStage stage : values()) {
+                if (level >= stage.minLevel && level <= stage.maxLevel) {
+                    return stage;
+                }
+            }
+            return values()[values().length - 1]; // 超过最高阶段返回最后一个
+        }
+
+        /**
+         * 获取最低等级
+         *
+         * @return 最低等级
+         */
+        public int getMinLevel() {
+            return minLevel;
+        }
+
+        /**
+         * 获取最高等级
+         *
+         * @return 最高等级
+         */
+        public int getMaxLevel() {
+            return maxLevel;
+        }
+
+        /**
+         * 获取阶段ID
+         *
+         * @return 阶段ID
+         */
+        public String getId() {
+            return id;
+        }
+
+        /**
+         * 获取显示名称（可翻译）
+         *
+         * @return 本地化显示名称
+         */
+        public Component getDisplayName() {
+            return Component.translatable("village.village_genesis.evolution_stage." + this.id);
+        }
+    }
 
 }

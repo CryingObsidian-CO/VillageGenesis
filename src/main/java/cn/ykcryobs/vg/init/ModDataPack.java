@@ -16,7 +16,7 @@ import net.neoforged.neoforge.registries.DataPackRegistryEvent;
  */
 
 @EventBusSubscriber(modid = VillageGenesis.MOD_ID)
-public class ModDataPackRegistries {
+public class ModDataPack {
 
     public static final ResourceKey<Registry<FacilityType>> FACILITY_REGISTRY_KEY = ResourceKey.createRegistryKey(
             ResourceLocation.fromNamespaceAndPath(VillageGenesis.MOD_ID, "village/facilities"));

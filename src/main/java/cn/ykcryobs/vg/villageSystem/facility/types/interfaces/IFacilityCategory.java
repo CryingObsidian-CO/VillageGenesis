@@ -39,13 +39,14 @@ public interface IFacilityCategory {
     int getBuildTime();
 
     /**
-     * 是否受到耐久度影响
+     * 获取设施的最大耐久度。 注意：如果设施不受耐久度影响，则返回的最大耐久度是不可信的
      *
-     * @return 是否受到耐久度影响
+     * @param level 设施等级
+     * @return 最大耐久度
+     * @see #isDurabilityAffected()
      */
-    default boolean isDurabilityAffected() {
-        return true;
-    }
+    int getMaxDurability(int level);
+
 
     /**
      * 获取设施升级所需时间（tick）
@@ -63,6 +64,15 @@ public interface IFacilityCategory {
      */
     default boolean isAvailableAtHighLevel() {
         return false;
+    }
+
+    /**
+     * 是否受到耐久度影响
+     *
+     * @return 是否受到耐久度影响
+     */
+    default boolean isDurabilityAffected() {
+        return true;
     }
 
     /**

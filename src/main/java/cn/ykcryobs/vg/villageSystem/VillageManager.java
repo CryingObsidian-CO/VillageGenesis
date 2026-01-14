@@ -129,6 +129,7 @@ public class VillageManager extends SavedData {
         return INSTANCE;
     }
 
+    // NOTE 关注这个会不会对保存性能有影响，有的话就独立各个子类的 SD
     public static void markDirty() {
         VillageManager.getInstance().setDirty();
     }

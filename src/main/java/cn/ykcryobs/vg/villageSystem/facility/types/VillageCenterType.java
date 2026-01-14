@@ -5,6 +5,8 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
+import java.util.List;
+
 /**
  * 村庄中心设施类型
  *
@@ -13,15 +15,16 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 public class VillageCenterType extends FacilityType implements IInfrastructureCategory {
 
     public static final MapCodec<VillageCenterType> CODEC = RecordCodecBuilder.mapCodec(
-            instance -> instance.group(
-                            Codec.STRING.fieldOf("type_identifier")
+            instance -> instance.group(Codec.STRING.fieldOf("type_identifier")
                                     .forGetter(VillageCenterType::getFacilityTypeIdentifier),
                             Codec.STRING.fieldOf("facility_type").forGetter(VillageCenterType::getFacilityTypeName),
                             Codec.INT.fieldOf("base_capacity").forGetter(VillageCenterType::getBaseCapacity),
                             Codec.INT.fieldOf("max_level").forGetter(VillageCenterType::getMaxLevel),
                             Codec.INT.fieldOf("required_village_level")
                                     .forGetter(VillageCenterType::getRequiredVillageLevel),
-                            Codec.INT.fieldOf("build_time").forGetter(VillageCenterType::getBuildTime))
+                            Codec.INT.fieldOf("build_time").forGetter(VillageCenterType::getBuildTime),
+                            Codec.INT.listOf().fieldOf("max_durability")
+                                    .forGetter(VillageCenterType::getMaxDurability))
                     .apply(instance, VillageCenterType::new));
 
 
@@ -36,10 +39,9 @@ public class VillageCenterType extends FacilityType implements IInfrastructureCa
      * @param buildTime              建造时间
      */
     protected VillageCenterType(String facilityTypeIdentifier, String facilityTypeName, int baseCapacity,
-            int maxLevel,
-            int requiredVillageLevel, int buildTime) {
+            int maxLevel, int requiredVillageLevel, int buildTime, List<Integer> maxDurability) {
         super(facilityTypeIdentifier, baseCapacity, maxLevel, requiredVillageLevel, buildTime,
-                facilityTypeName, false);
+                facilityTypeName, maxDurability);
     }
 
     @Override

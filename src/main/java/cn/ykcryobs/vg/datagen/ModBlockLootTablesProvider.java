@@ -33,6 +33,7 @@ public class ModBlockLootTablesProvider extends BlockLootSubProvider {
 
     @Override
     protected void generate() {
+        dropSelf(ModBlocks.VILLAGE_INFO_PANEL.get());
     }
 
     protected LootTable.Builder createOreMultiDrops(Block block, Item item, float minDrops, float maxDrops) {

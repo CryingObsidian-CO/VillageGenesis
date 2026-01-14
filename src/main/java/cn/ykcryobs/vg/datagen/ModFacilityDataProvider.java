@@ -16,6 +16,7 @@ public class ModFacilityDataProvider extends FacilityDataProvider {
 
     @Override
     protected void addFacilityType() {
-        add(createVillageCenter("village_center", "village_center", 0, 5, 0, 200));
+        add(createVillageCenter("village_center", "village_center", 0, 5, 0, 200,
+                MaxDurabilityBuilder.createMaxDurability(100, 150, 190, 220, 250)));
     }
 }

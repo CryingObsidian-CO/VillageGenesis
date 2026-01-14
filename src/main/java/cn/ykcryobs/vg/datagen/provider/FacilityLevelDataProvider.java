@@ -92,7 +92,6 @@ public abstract class FacilityLevelDataProvider implements DataProvider {
     public static class FacilityLevelDataBuilder {
 
         private final JsonObject json = new JsonObject();
-        private final JsonObject levelsObject = new JsonObject();
         private final String modid;
 
         public FacilityLevelDataBuilder(String modid) {

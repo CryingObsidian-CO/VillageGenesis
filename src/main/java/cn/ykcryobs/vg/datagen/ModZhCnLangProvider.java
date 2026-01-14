@@ -1,6 +1,7 @@
 package cn.ykcryobs.vg.datagen;
 
 import cn.ykcryobs.vg.VillageGenesis;
+import cn.ykcryobs.vg.init.ModBlocks;
 import cn.ykcryobs.vg.init.ModItems;
 import net.minecraft.data.PackOutput;
 import net.neoforged.neoforge.common.data.LanguageProvider;
@@ -43,6 +44,9 @@ public class ModZhCnLangProvider extends LanguageProvider {
         add("village_genesis.configuration.durabilityThresholdToNeedMaintenance.tooltip",
                 "设施耐久度低于此阈值时，需要维护。（0-100)%");
 
+        // blocks
+        addBlock(ModBlocks.VILLAGE_INFO_PANEL, "村庄信息面板");
+
         // items
         addItem(ModItems.BOUNDARY_SCEPTER, "边界权杖");
 
@@ -51,8 +55,40 @@ public class ModZhCnLangProvider extends LanguageProvider {
         add("tooltip.village_genesis.boundary_scepter.not_bound", "未绑定村庄");
         add("tooltip.village_genesis.boundary_scepter.bound_unknown", "未知村庄");
 
-        //messages
+        // messages
         add("message.village_genesis.not_in_village", "你不在任何村庄中");
+
+        // evolution stages
+        add("village.village_genesis.evolution_stage.primitive", "原始部落");
+        add("village.village_genesis.evolution_stage.agricultural", "农业村庄");
+        add("village.village_genesis.evolution_stage.handicraft", "手工业城镇");
+        add("village.village_genesis.evolution_stage.commercial", "商业都市");
+        add("village.village_genesis.evolution_stage.industrial", "工业城市");
+        add("village.village_genesis.evolution_stage.modern", "现代都市");
+
+        // village status
+        add("village.village_genesis.status.developing", "发展中");
+        add("village.village_genesis.status.stagnant", "停滞中");
+        add("village.village_genesis.status.declining", "衰退中");
+        add("village.village_genesis.status.abandoned", "废弃");
+
+        // GUI translations for Village Info Panel
+        add("gui.village_genesis.village_info_title", "村庄信息面板");
+        add("gui.village_genesis.close", "关闭");
+        add("gui.village_genesis.loading", "加载中...");
+        add("gui.village_genesis.info_category.basic_info", "基本信息");
+        add("gui.village_genesis.info_category.tooltip.basic_info", "查看村庄的基本信息和概况");
+        add("gui.village_genesis.info_category.villager_list", "村民列表");
+        add("gui.village_genesis.info_category.tooltip.villager_list", "浏览村庄内村民的信息");
+        add("gui.village_genesis.info_category.facility_list", "设施列表");
+        add("gui.village_genesis.info_category.tooltip.facility_list", "查看村庄的建筑列表");
+        add("village_info_panel.village_genesis.village_name", "村庄名称 : %s");
+        add("village_info_panel.village_genesis.village_level", "村庄等级 : %s");
+        add("village_info_panel.village_genesis.village_exp", "村庄经验 : %s");
+        add("village_info_panel.village_genesis.village_next_exp", "下一级需要的经验 : %s");
+        add("village_info_panel.village_genesis.village_population", "村庄人口 : %s");
+        add("village_info_panel.village_genesis.village_status", "村庄状态 : %s");
+        add("village_info_panel.village_genesis.facility_count", "建筑数量 : %s");
     }
 
     private void addVillageNamePartTranslations() {

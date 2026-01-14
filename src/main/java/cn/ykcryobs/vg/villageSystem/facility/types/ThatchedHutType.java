@@ -5,6 +5,8 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
+import java.util.List;
+
 /**
  * 草屋设施类型，代表村庄中的草屋建筑 实现了住宅设施分类接口，具有住宅相关的属性和功能
  *
@@ -21,6 +23,7 @@ public class ThatchedHutType extends FacilityType implements IResidentialCategor
                             Codec.INT.fieldOf("required_village_level")
                                     .forGetter(ThatchedHutType::getRequiredVillageLevel),
                             Codec.INT.fieldOf("build_time").forGetter(ThatchedHutType::getBuildTime),
+                            Codec.INT.listOf().fieldOf("max_durability").forGetter(ThatchedHutType::getMaxDurability),
                             Codec.BOOL.optionalFieldOf("multi_residential", false)
                                     .forGetter(ThatchedHutType::isMultiResidential))
                     .apply(instance, ThatchedHutType::new));
@@ -40,9 +43,10 @@ public class ThatchedHutType extends FacilityType implements IResidentialCategor
      * @param multiResidential       是否为多家庭住宅
      */
     protected ThatchedHutType(String facilityTypeIdentifier, String facilityTypeName, int baseCapacity,
-            int maxLevel, int requiredVillageLevel, int buildTime, boolean multiResidential) {
+            int maxLevel, int requiredVillageLevel, int buildTime, List<Integer> maxDurability,
+            boolean multiResidential) {
         super(facilityTypeIdentifier, baseCapacity, maxLevel, requiredVillageLevel, buildTime,
-                facilityTypeName, true);
+                facilityTypeName, maxDurability);
         this.multiResidential = multiResidential;
     }
 

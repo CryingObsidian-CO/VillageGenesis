@@ -4,9 +4,11 @@ import cn.ykcryobs.vg.config.ClientConfig;
 import cn.ykcryobs.vg.config.CommonConfig;
 import cn.ykcryobs.vg.config.ServerConfig;
 import cn.ykcryobs.vg.init.ModAttachment;
+import cn.ykcryobs.vg.init.ModBlockEntities;
+import cn.ykcryobs.vg.init.ModBlocks;
 import cn.ykcryobs.vg.init.ModDataComponents;
 import cn.ykcryobs.vg.init.ModItems;
-import cn.ykcryobs.vg.init.ModRegistries;
+import cn.ykcryobs.vg.init.ModStructurePoolRegistries;
 import com.mojang.logging.LogUtils;
 import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.IEventBus;
@@ -44,9 +46,11 @@ public class VillageGenesis {
         modContainer.registerConfig(ModConfig.Type.CLIENT, ClientConfig.SPEC);
 
         ModAttachment.register(modEventBus);
-        ModDataComponents.REGISTRAR.register(modEventBus);
-        ModItems.ITEMS.register(modEventBus);
-        ModRegistries.STRUCTURE_POOL_ELEMENT_REGISTRY.register(modEventBus);
+        ModBlockEntities.register(modEventBus);
+        ModBlocks.register(modEventBus);
+        ModDataComponents.register(modEventBus);
+        ModItems.register(modEventBus);
+        ModStructurePoolRegistries.register(modEventBus);
     }
 
     public static String getModIdentifier(String name) {
