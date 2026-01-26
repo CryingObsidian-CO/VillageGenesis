@@ -15,7 +15,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -27,17 +29,32 @@ import java.util.UUID;
  */
 public class VillageManager extends SavedData {
 
+    protected static final Map<UUID, VillageData> villageMap = new HashMap<>();
     private static final RandomSource RANDOM = RandomSource.create();
     private static final VillageManager INSTANCE = new VillageManager();
     private static final Logger LOGGER = LogUtils.getLogger();
-    protected Map<UUID, VillageData> villageMap = new HashMap<>();
 
     private VillageManager() {
 
     }
 
-    public static VillageManager getInstance() {
-        return INSTANCE;
+
+    /**
+     * 获取所有村庄的数据列表
+     *
+     * @return 所有村庄的数据列表
+     */
+    public static List<VillageData> getAllVillages() {
+        return new ArrayList<>(villageMap.values());
+    }
+
+    /**
+     * 获取所有村庄的UUID列表
+     *
+     * @return 所有村庄的UUID列表
+     */
+    public static List<UUID> getAllVillageIds() {
+        return new ArrayList<>(villageMap.keySet());
     }
 
     /**
@@ -51,7 +68,7 @@ public class VillageManager extends SavedData {
             @Nullable TagKey<Biome> biome) {
         VillageData villageData = new VillageData(pos, boundingBox, biome, RANDOM);
 
-        VillageManager.getInstance().villageMap.putIfAbsent(villageData.getVillageId(), villageData);
+        VillageManager.villageMap.putIfAbsent(villageData.getVillageId(), villageData);
         markDirty();
     }
 
@@ -66,7 +83,7 @@ public class VillageManager extends SavedData {
         if (!isVillageExist(id)) {
             return Optional.empty();
         }
-        return Optional.of(VillageManager.getInstance().villageMap.get(id));
+        return Optional.of(VillageManager.villageMap.get(id));
     }
 
     /**
@@ -76,7 +93,7 @@ public class VillageManager extends SavedData {
      * @return 是否存在
      */
     public static boolean isVillageExist(UUID id) {
-        if (!VillageManager.getInstance().villageMap.containsKey(id)) {
+        if (!VillageManager.villageMap.containsKey(id)) {
             LOGGER.warn("VillageManager: 未找到村庄数据类，ID：{}", id);
             return false;
         }
@@ -90,7 +107,7 @@ public class VillageManager extends SavedData {
      * @return 村庄中心位置（第一个匹配的）
      */
     public static Optional<VillageData> getVillageIfPosInVillage(BlockPos pos) {
-        return VillageManager.getInstance().villageMap.values().stream()
+        return VillageManager.villageMap.values().stream()
                 .filter(village -> village.getBoundingBox().contains(pos)).findFirst();
     }
 
@@ -101,7 +118,7 @@ public class VillageManager extends SavedData {
      * @return 是否在任何村庄范围内
      */
     public static boolean isPosInVillage(BlockPos pos) {
-        return VillageManager.getInstance().villageMap.values().stream()
+        return VillageManager.villageMap.values().stream()
                 .anyMatch(village -> village.getBoundingBox().contains(pos));
     }
 
@@ -122,7 +139,7 @@ public class VillageManager extends SavedData {
         ListTag villages = tag.getList("villages", CompoundTag.TAG_COMPOUND);
         for (Tag villageTag : villages) {
             VillageData villageData = VillageData.load((CompoundTag) villageTag, registries);
-            VillageManager.getInstance().villageMap.putIfAbsent(villageData.getVillageId(), villageData);
+            VillageManager.villageMap.putIfAbsent(villageData.getVillageId(), villageData);
         }
 
         LOGGER.info("Loaded {} villages from world data", villages.size());
@@ -138,9 +155,13 @@ public class VillageManager extends SavedData {
         return RANDOM;
     }
 
+    public static VillageManager getInstance() {
+        return INSTANCE;
+    }
+
     public void tick() {
         // TODO 剔除不必要的村庄优化性能
-        this.villageMap.values().forEach(VillageData::tick);
+        villageMap.values().forEach(VillageData::tick);
     }
 
     @Override

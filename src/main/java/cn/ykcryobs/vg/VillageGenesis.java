@@ -9,6 +9,7 @@ import cn.ykcryobs.vg.init.ModBlocks;
 import cn.ykcryobs.vg.init.ModDataComponents;
 import cn.ykcryobs.vg.init.ModItems;
 import cn.ykcryobs.vg.init.ModStructurePoolRegistries;
+import cn.ykcryobs.vg.villageSystem.currency.TransactionManager;
 import com.mojang.logging.LogUtils;
 import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.IEventBus;
@@ -51,6 +52,8 @@ public class VillageGenesis {
         ModDataComponents.register(modEventBus);
         ModItems.register(modEventBus);
         ModStructurePoolRegistries.register(modEventBus);
+
+        TransactionManager.register(modEventBus);
     }
 
     public static String getModIdentifier(String name) {

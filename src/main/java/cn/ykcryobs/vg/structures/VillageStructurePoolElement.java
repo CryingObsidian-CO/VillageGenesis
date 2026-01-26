@@ -45,8 +45,7 @@ public class VillageStructurePoolElement extends SinglePoolElement {
 
     public static final MapCodec<VillageStructurePoolElement> CODEC = RecordCodecBuilder.mapCodec(
             instance -> instance.group(templateCodec(), processorsCodec(), projectionCodec(),
-                            overrideLiquidSettingsCodec(),
-                            Codec.STRING.fieldOf("facility_type")
+                            overrideLiquidSettingsCodec(), Codec.STRING.fieldOf("facility_type")
                                     .forGetter(VillageStructurePoolElement::getFacilityTypeName))
                     .apply(instance, VillageStructurePoolElement::new));
     private static final Logger LOGGER = LogUtils.getLogger();
@@ -73,8 +72,7 @@ public class VillageStructurePoolElement extends SinglePoolElement {
     public static Function<StructureTemplatePool.Projection, VillageStructurePoolElement> village(String id,
             String facilityTypeName) {
         return projection -> new VillageStructurePoolElement(Either.left(ResourceLocation.parse(id)), EMPTY,
-                projection,
-                Optional.empty(), facilityTypeName);
+                projection, Optional.empty(), facilityTypeName);
     }
 
     /**
@@ -88,8 +86,7 @@ public class VillageStructurePoolElement extends SinglePoolElement {
     public static Function<StructureTemplatePool.Projection, VillageStructurePoolElement> village(String id,
             Holder<StructureProcessorList> processors, String facilityTypeName) {
         return projection -> new VillageStructurePoolElement(Either.left(ResourceLocation.parse(id)),
-                processors,
-                projection, Optional.empty(), facilityTypeName);
+                processors, projection, Optional.empty(), facilityTypeName);
     }
 
     /**
@@ -103,8 +100,7 @@ public class VillageStructurePoolElement extends SinglePoolElement {
     public static Function<StructureTemplatePool.Projection, VillageStructurePoolElement> village(String id,
             LiquidSettings liquidSettings, String facilityTypeName) {
         return projection -> new VillageStructurePoolElement(Either.left(ResourceLocation.parse(id)), EMPTY,
-                projection,
-                Optional.of(liquidSettings), facilityTypeName);
+                projection, Optional.of(liquidSettings), facilityTypeName);
     }
 
 
@@ -121,8 +117,7 @@ public class VillageStructurePoolElement extends SinglePoolElement {
             Holder<StructureProcessorList> processors, LiquidSettings liquidSettings,
             String facilityTypeName) {
         return projection -> new VillageStructurePoolElement(Either.left(ResourceLocation.parse(id)),
-                processors,
-                projection, Optional.of(liquidSettings), facilityTypeName);
+                processors, projection, Optional.of(liquidSettings), facilityTypeName);
     }
 
 
@@ -132,18 +127,15 @@ public class VillageStructurePoolElement extends SinglePoolElement {
 
     @Override
     public boolean place(@NotNull StructureTemplateManager structureTemplateManager,
-            @NotNull WorldGenLevel level,
-            @NotNull StructureManager structureManager, @NotNull ChunkGenerator generator,
-            @NotNull BlockPos offset,
-            @NotNull BlockPos pos, @NotNull Rotation rotation, @NotNull BoundingBox box,
-            @NotNull RandomSource random,
+            @NotNull WorldGenLevel level, @NotNull StructureManager structureManager,
+            @NotNull ChunkGenerator generator, @NotNull BlockPos offset, @NotNull BlockPos pos,
+            @NotNull Rotation rotation, @NotNull BoundingBox box, @NotNull RandomSource random,
             @NotNull LiquidSettings liquidSettings, boolean keepJigsaws) {
         // 获取FacilityType
 
         HolderLookup.RegistryLookup<FacilityType> facilityRegistry = level.registryAccess()
                 .lookupOrThrow(ModDataPack.FACILITY_REGISTRY_KEY);
-        ResourceKey<FacilityType> resourceKey = ResourceKey.create(
-                ModDataPack.FACILITY_REGISTRY_KEY,
+        ResourceKey<FacilityType> resourceKey = ResourceKey.create(ModDataPack.FACILITY_REGISTRY_KEY,
                 ResourceLocation.parse(facilityTypeName));
         Holder<FacilityType> facilityHolder = facilityRegistry.get(resourceKey).orElse(null);
         if (facilityHolder == null) {
@@ -159,11 +151,11 @@ public class VillageStructurePoolElement extends SinglePoolElement {
             return false;
         }
 
-        villageDataOptional.get().registerFacility(new VillageFacility(facilityType, pos));
+        villageDataOptional.get().getFacilityManager()
+                .registerFacility(new VillageFacility(facilityType, pos));
         LOGGER.info("Placed structure {} at {}", facilityTypeName, pos);
         return super.place(structureTemplateManager, level, structureManager, generator, offset, pos,
-                rotation, box,
-                random, liquidSettings, keepJigsaws);
+                rotation, box, random, liquidSettings, keepJigsaws);
     }
 
     @Override

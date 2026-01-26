@@ -2,8 +2,8 @@ package cn.ykcryobs.vg.villageSystem;
 
 import cn.ykcryobs.vg.VillageGenesis;
 import cn.ykcryobs.vg.utils.BoundingBox2D;
+import cn.ykcryobs.vg.villageSystem.currency.VillageEconomyData;
 import cn.ykcryobs.vg.villageSystem.facility.FacilityManager;
-import cn.ykcryobs.vg.villageSystem.facility.VillageFacility;
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -58,6 +58,8 @@ public class VillageData {
     private VillageEvolutionStage evolutionStage;
     // 下一级所需经验值缓存
     private int requiredExpForNextLevelCache;
+    // 村庄经济数据
+    private VillageEconomyData economyData;
 
     private VillageData() {
         this.villageId = null;
@@ -74,6 +76,7 @@ public class VillageData {
         this.facilityManager = null;
         this.evolutionStage = null;
         this.getRequiredExpForNextLevel(true);
+        this.economyData = null;
     }
 
     public VillageData(BlockPos centerPos, BoundingBox2D boundingBox, @Nullable TagKey<Biome> holder,
@@ -93,6 +96,7 @@ public class VillageData {
         this.evolutionStage = VillageEvolutionStage.getEvolutionStage(this.villageLevel);
         this.getRequiredExpForNextLevel(true);
         this.markDirty();
+        this.economyData = new VillageEconomyData();
     }
 
     public static VillageData load(CompoundTag nbt, HolderLookup.Provider provider) {
@@ -125,6 +129,12 @@ public class VillageData {
         }
 
         villageData.evolutionStage = VillageEvolutionStage.getEvolutionStage(villageData.villageLevel);
+
+        // 加载村庄经济数据
+        villageData.economyData = new VillageEconomyData();
+        if (nbt.contains("economyData", Tag.TAG_COMPOUND)) {
+            villageData.economyData.deserializeNBT(nbt.getCompound("economyData"));
+        }
 
         LOGGER.info("Loaded village data: {} (ID: {}) - Level: {}, Stage: {}, Population: {}, Status: {}",
                 villageData.villageName.getString(), villageData.villageId, villageData.villageLevel,
@@ -385,20 +395,12 @@ public class VillageData {
         return this.evolutionStage;
     }
 
+    public VillageEconomyData getVillageEconomyData() {
+        return this.economyData;
+    }
+
     public void tick() {
         this.facilityManager.tick();
-    }
-
-    @SuppressWarnings("deprecation")
-    public void registerFacility(VillageFacility facility) {
-        this.facilityManager.registerFacility(facility);
-        this.markDirty();
-    }
-
-    @SuppressWarnings("deprecation")
-    public void removeFacility(VillageFacility facility) {
-        this.facilityManager.removeFacility(facility);
-        this.markDirty();
     }
 
     /**
@@ -511,6 +513,8 @@ public class VillageData {
         nbt.put("villagers", villagerList);
 
         nbt.put("facilities", this.facilityManager.serializeNBT(provider));
+
+        nbt.put("economyData", this.economyData.serializeNBT());
 
         LOGGER.info("Saved village data: {}", this.villageId);
         return nbt;

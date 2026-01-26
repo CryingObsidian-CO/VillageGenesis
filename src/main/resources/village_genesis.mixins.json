@@ -3,6 +3,7 @@
   "package": "cn.ykcryobs.vg.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "AbstractVillagerMixin",
     "ChunkGeneratorMixin",
     "VillagerMixin"
   ],

@@ -33,8 +33,7 @@ import java.util.Optional;
 public abstract class ChunkGeneratorMixin {
 
     @Inject(method = "tryGenerateStructure", at = @At(value = "RETURN", ordinal = 0))
-    private void tryGenerateStructureInject(
-            StructureSet.StructureSelectionEntry structureSelectionEntry,
+    private void tryGenerateStructureInject(StructureSet.StructureSelectionEntry structureSelectionEntry,
             StructureManager structureManager, RegistryAccess registryAccess, RandomState random,
             StructureTemplateManager structureTemplateManager, long seed, ChunkAccess chunk,
             ChunkPos chunkPos, SectionPos sectionPos, CallbackInfoReturnable<Boolean> cir,

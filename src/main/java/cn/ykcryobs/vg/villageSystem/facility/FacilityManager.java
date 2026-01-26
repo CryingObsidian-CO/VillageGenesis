@@ -51,12 +51,8 @@ public class FacilityManager {
      * 注册设施到管理器，当建筑生成时调用此方法
      *
      * @param facility 要注册的设施
-     * @see cn.ykcryobs.vg.villageSystem.VillageData#registerFacility(VillageFacility)
-     * @deprecated You never use this method because it may not save the data to the disk. Use
-     * {@link cn.ykcryobs.vg.villageSystem.VillageData#registerFacility(VillageFacility)} instead.
      */
-    @Deprecated
-    @SuppressWarnings("DeprecatedIsStillUsed")
+
     public void registerFacility(VillageFacility facility) {
         if (facility == null) {
             LOGGER.warn("FacilityManager[{}]: Attempting to register null facility", this.villageId);
@@ -80,6 +76,7 @@ public class FacilityManager {
                 k -> new ArrayList<>());
         facilitiesByType.add(facility);
         this.positionToFacilityMap.put(facility.getPosition(), facility);
+        this.markDirty();
 
         LOGGER.debug("FacilityManager[{}]: Successfully registered facility {} at {}", this.villageId,
                 facilityType.getFacilityTypeIdentifier(), facility.getPosition());
@@ -90,12 +87,7 @@ public class FacilityManager {
      * 移除设施
      *
      * @param facility 要移除的设施
-     * @see cn.ykcryobs.vg.villageSystem.VillageData#removeFacility(VillageFacility)
-     * @deprecated You never use this method because it may not save the data to the disk. Use
-     * {@link cn.ykcryobs.vg.villageSystem.VillageData#removeFacility(VillageFacility)} instead.
      */
-    @Deprecated
-    @SuppressWarnings("DeprecatedIsStillUsed")
     public void removeFacility(VillageFacility facility) {
         if (facility == null) {
             LOGGER.warn("FacilityManager[{}]: Attempting to remove null facility", this.villageId);
@@ -121,6 +113,7 @@ public class FacilityManager {
 
             if (facilitiesByType.isEmpty()) {
                 this.facilities.remove(facilityType);
+                this.markDirty();
             }
 
             LOGGER.debug("FacilityManager[{}]: Successfully removed facility {}", this.villageId,
@@ -322,8 +315,8 @@ public class FacilityManager {
             CompoundTag facilityTag = facilitiesList.getCompound(i);
             String typeName = facilityTag.getString("facilityType");
 
-            ResourceKey<FacilityType> resourceKey = ResourceKey.create(
-                    ModDataPack.FACILITY_REGISTRY_KEY, ResourceLocation.parse(typeName));
+            ResourceKey<FacilityType> resourceKey = ResourceKey.create(ModDataPack.FACILITY_REGISTRY_KEY,
+                    ResourceLocation.parse(typeName));
             Holder<FacilityType> facilityHolder = facilityRegistry.get(resourceKey).orElse(null);
 
             FacilityType facilityType = facilityHolder != null ? facilityHolder.value() : null;

@@ -2,6 +2,7 @@ package cn.ykcryobs.vg.init;
 
 import cn.ykcryobs.vg.VillageGenesis;
 import cn.ykcryobs.vg.dataComponents.BoundaryScepterComponent;
+import cn.ykcryobs.vg.dataComponents.CurrencyDataComponent;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.neoforged.bus.api.IEventBus;
@@ -23,6 +24,9 @@ public class ModDataComponents {
     public static final Supplier<DataComponentType<UUID>> BOUNDED_VILLAGE = REGISTRAR.registerComponentType(
             "bounded_village", builder -> builder.persistent(BoundaryScepterComponent.UUID_CODEC)
                     .networkSynchronized(BoundaryScepterComponent.UUID_STREAM_CODEC));
+    public static final Supplier<DataComponentType<CurrencyDataComponent>> CURRENCY_DATA = REGISTRAR.registerComponentType(
+            "currency_data", builder -> builder.persistent(CurrencyDataComponent.CODEC)
+                    .networkSynchronized(CurrencyDataComponent.STREAM_CODEC));
 
     public static void register(IEventBus modEventBus) {
         REGISTRAR.register(modEventBus);
