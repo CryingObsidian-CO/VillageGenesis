@@ -9,15 +9,17 @@ import cn.ykcryobs.vg.init.ModBlocks;
 import cn.ykcryobs.vg.init.ModDataComponents;
 import cn.ykcryobs.vg.init.ModItems;
 import cn.ykcryobs.vg.init.ModStructurePoolRegistries;
-import cn.ykcryobs.vg.villageSystem.currency.TransactionManager;
+import cn.ykcryobs.vg.villageSystem.VillageData;
+import cn.ykcryobs.vg.villageSystem.economy.TransactionManager;
 import com.mojang.logging.LogUtils;
-import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import org.slf4j.Logger;
 
@@ -35,7 +37,7 @@ public class VillageGenesis {
     // Directly reference a slf4j logger
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    public static Level level;
+    public static ServerLevel level;
 
     // The constructor for the mod class is the first code that is run when your mod is loaded.
     // FML will recognize some parameter types like IEventBus or ModContainer and pass them in automatically.
@@ -54,11 +56,9 @@ public class VillageGenesis {
         ModStructurePoolRegistries.register(modEventBus);
 
         TransactionManager.register(modEventBus);
+        VillageData.register(modEventBus);
     }
 
-    public static String getModIdentifier(String name) {
-        return MOD_ID + ":" + name;
-    }
 
     /**
      * 获取当前游戏时间
@@ -79,21 +79,20 @@ public class VillageGenesis {
      * @return 当前世界实例
      * @throws IllegalStateException 如果世界未被设置
      */
-    public static Level getLevel() {
+    public static ServerLevel getLevel() {
         if (level == null) {
             throw new IllegalStateException("Level is not set!");
         }
         return level;
     }
 
-    /**
-     * 服务器启动事件处理器，用于初始化世界实例
-     *
-     * @param event 服务器启动事件
-     */
     @SubscribeEvent
     private static void serverStarting(ServerStartingEvent event) {
         level = event.getServer().overworld();
+        TransactionManager.setup();
     }
 
+    @SubscribeEvent
+    private static void onCommonSetup(FMLCommonSetupEvent event) {
+    }
 }

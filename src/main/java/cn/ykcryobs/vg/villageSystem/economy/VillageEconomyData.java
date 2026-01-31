@@ -1,4 +1,4 @@
-package cn.ykcryobs.vg.villageSystem.currency;
+package cn.ykcryobs.vg.villageSystem.economy;
 
 import cn.ykcryobs.vg.config.ServerConfig;
 import cn.ykcryobs.vg.item.ITradableItem;

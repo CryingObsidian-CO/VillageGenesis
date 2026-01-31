@@ -1,4 +1,4 @@
-package cn.ykcryobs.vg.villageSystem.currency;
+package cn.ykcryobs.vg.villageSystem.economy;
 
 /**
  * 货币类型枚举 定义不同村庄阶段的货币类型

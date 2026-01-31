@@ -3,6 +3,7 @@ package cn.ykcryobs.vg.mixin;
 import cn.ykcryobs.vg.init.ModAttachment;
 import cn.ykcryobs.vg.villageSystem.VillageData;
 import cn.ykcryobs.vg.villageSystem.VillageManager;
+import cn.ykcryobs.vg.villagerEnhance.IVillageMixin;
 import cn.ykcryobs.vg.villagerEnhance.VillagerData;
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
@@ -29,7 +30,7 @@ import java.util.Optional;
  * @author llykff
  */
 @Mixin(Villager.class)
-public abstract class VillagerMixin extends AbstractVillager {
+public abstract class VillagerMixin extends AbstractVillager implements IVillageMixin {
 
     @Unique
     private static final Logger villageGenesis$LOGGER = LogUtils.getLogger();

@@ -1,5 +1,6 @@
 {
   "block.village_genesis.village_info_panel": "Village Info Panel",
+  "commands.village_genesis.economy.invalidTrader": "Invalid Trader : %s",
   "gui.village_genesis.close": "Close",
   "gui.village_genesis.info_category.basic_info": "Basic Info",
   "gui.village_genesis.info_category.facility_list": "Facility List",

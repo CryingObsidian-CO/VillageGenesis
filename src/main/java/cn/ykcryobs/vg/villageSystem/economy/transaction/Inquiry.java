@@ -1,7 +1,7 @@
-package cn.ykcryobs.vg.villageSystem.currency.transaction;
+package cn.ykcryobs.vg.villageSystem.economy.transaction;
 
 import cn.ykcryobs.vg.item.ITradableItem;
-import cn.ykcryobs.vg.villageSystem.currency.ITrader;
+import cn.ykcryobs.vg.villageSystem.economy.ITrader;
 import com.mojang.logging.LogUtils;
 import net.minecraft.world.item.Item;
 import org.jetbrains.annotations.NotNull;

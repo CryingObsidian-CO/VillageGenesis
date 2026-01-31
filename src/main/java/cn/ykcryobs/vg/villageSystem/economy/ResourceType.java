@@ -1,4 +1,4 @@
-package cn.ykcryobs.vg.villageSystem.currency;
+package cn.ykcryobs.vg.villageSystem.economy;
 
 /**
  * 资源类型枚举

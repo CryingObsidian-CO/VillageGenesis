@@ -23,16 +23,14 @@ public class WarehouseManagerProfession {
 
     public static final ResourceKey<VillagerProfession> WAREHOUSE_MANAGER_KEY = ResourceKey.create(
             Registries.VILLAGER_PROFESSION,
-            ResourceLocation.fromNamespaceAndPath(VillageGenesis.MOD_ID, "warehouse_manager")
-    );
+            ResourceLocation.fromNamespaceAndPath(VillageGenesis.MOD_ID, "warehouse_manager"));
 
     public static PoiType createWarehousePoi() {
         // 获取所有匹配的方块状态
         Set<BlockState> matchingStates = ImmutableSet.<BlockState>builder()
                 .addAll(Blocks.CHEST.getStateDefinition().getPossibleStates())
                 .addAll(Blocks.TRAPPED_CHEST.getStateDefinition().getPossibleStates())
-                .addAll(Blocks.BARREL.getStateDefinition().getPossibleStates())
-                .build();
+                .addAll(Blocks.BARREL.getStateDefinition().getPossibleStates()).build();
 
         // 创建并返回POI类型
         return new PoiType(matchingStates, 1, 1);

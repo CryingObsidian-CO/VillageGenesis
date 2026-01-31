@@ -1,4 +1,4 @@
-package cn.ykcryobs.vg.villageSystem.currency.payment;
+package cn.ykcryobs.vg.villageSystem.economy.payment;
 
 /**
  * 支付方式枚举 定义不同的支付方式

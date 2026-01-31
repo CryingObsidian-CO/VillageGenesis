@@ -1,7 +1,7 @@
 package cn.ykcryobs.vg.event;
 
-import cn.ykcryobs.vg.villageSystem.currency.transaction.Inquiry;
-import cn.ykcryobs.vg.villageSystem.currency.transaction.QuoteCollector;
+import cn.ykcryobs.vg.villageSystem.economy.transaction.Inquiry;
+import cn.ykcryobs.vg.villageSystem.economy.transaction.QuoteCollector;
 import net.neoforged.bus.api.Event;
 import net.neoforged.fml.event.IModBusEvent;
 

@@ -1,6 +1,6 @@
 package cn.ykcryobs.vg.item.currency;
 
-import cn.ykcryobs.vg.villageSystem.currency.CurrencyType;
+import cn.ykcryobs.vg.villageSystem.economy.CurrencyType;
 
 /**
  * 基础纸币物品类 所有纸币物品的基类

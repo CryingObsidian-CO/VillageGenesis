@@ -1,13 +1,14 @@
-package cn.ykcryobs.vg.villageSystem.currency;
+package cn.ykcryobs.vg.villageSystem.economy;
 
+import cn.ykcryobs.vg.config.ServerConfig;
 import cn.ykcryobs.vg.event.InquiryBroadcastEvent;
-import cn.ykcryobs.vg.villageSystem.currency.payment.IPayment;
-import cn.ykcryobs.vg.villageSystem.currency.payment.PaymentMethod;
-import cn.ykcryobs.vg.villageSystem.currency.transaction.Inquiry;
-import cn.ykcryobs.vg.villageSystem.currency.transaction.PreliminaryQuote;
-import cn.ykcryobs.vg.villageSystem.currency.transaction.QuoteCollector;
-import cn.ykcryobs.vg.villageSystem.currency.transaction.Transaction;
-import cn.ykcryobs.vg.villageSystem.currency.transaction.TransactionResult;
+import cn.ykcryobs.vg.villageSystem.economy.payment.IPayment;
+import cn.ykcryobs.vg.villageSystem.economy.payment.PaymentMethod;
+import cn.ykcryobs.vg.villageSystem.economy.transaction.Inquiry;
+import cn.ykcryobs.vg.villageSystem.economy.transaction.PreliminaryQuote;
+import cn.ykcryobs.vg.villageSystem.economy.transaction.QuoteCollector;
+import cn.ykcryobs.vg.villageSystem.economy.transaction.Transaction;
+import cn.ykcryobs.vg.villageSystem.economy.transaction.TransactionResult;
 import com.mojang.logging.LogUtils;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.IEventBus;
@@ -17,6 +18,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 /**
  * 交易管理器
@@ -27,6 +31,7 @@ public class TransactionManager {
 
     private static final Logger LOGGER = LogUtils.getLogger();
 
+    private static Executor INQUIRY_EXECUTOR;
     private static IEventBus eventBus;
 
     private TransactionManager() {
@@ -34,6 +39,11 @@ public class TransactionManager {
 
     public static void register(IEventBus eventBus) {
         TransactionManager.eventBus = eventBus;
+    }
+
+    public static void setup() {
+
+        INQUIRY_EXECUTOR = Executors.newFixedThreadPool(ServerConfig.transactionThreadCount.getAsInt());
     }
 
     private static List<PreliminaryQuote> initiateInquiry(Inquiry inquiry, int minRequiredQuotes,
@@ -90,7 +100,15 @@ public class TransactionManager {
         return result;
     }
 
-    public static IPayment negotiatePayment(ITrader buyer, ITrader seller, float totalWorkPoint) {
+    /**
+     * 协商支付方式
+     *
+     * @param buyer          买家
+     * @param seller         卖家
+     * @param totalWorkPoint 总工作点
+     * @return 支付方式
+     */
+    private static IPayment negotiatePayment(ITrader buyer, ITrader seller, float totalWorkPoint) {
         PaymentMethod paymentMethod = buyer.getSupportedPaymentMethods().stream()
                 .filter(seller.getSupportedPaymentMethods()::contains).findFirst().orElse(null);
         if (paymentMethod == null) {
@@ -99,29 +117,57 @@ public class TransactionManager {
 
         IPayment payment = PaymentMethod.fromId(paymentMethod);
 
-        // HACK 保留，因为相应的类还没有实现
         payment.createPayment(buyer, seller, totalWorkPoint);
         return payment;
     }
 
-    public static TransactionResult postInquiry(Inquiry inquiry) {
-        List<PreliminaryQuote> quotes = initiateInquiry(inquiry, 5, 5000);
-        Optional<PreliminaryQuote> bestQuote = selectBestSeller(inquiry, quotes);
-        if (bestQuote.isEmpty()) {
-            LOGGER.warn("No suitable seller found for inquiry: {}", inquiry);
-            return TransactionResult.FAIL;
-        }
+    /**
+     * 发布询价单
+     *
+     * @param inquiry 询价单
+     * @return 交易结果的CompletableFuture
+     */
+    // TODO 见面交易得先见面吧
+    public static CompletableFuture<TransactionResult> postInquiryAsync(Inquiry inquiry) {
+        return postInquiryAsync(inquiry, 5, 5000);
+    }
 
-        PreliminaryQuote selectedQuote = bestQuote.get();
-        TransactionResult result = generateTransaction(inquiry, selectedQuote);
-        LOGGER.debug("Transaction result: {}", result);
+    /**
+     * 发布询价单
+     *
+     * @param inquiry           询价单
+     * @param minRequiredQuotes 最小报价数
+     * @param timeoutMs         超时时间（毫秒）
+     * @return 交易结果的CompletableFuture
+     */
+    // TODO 见面交易得先见面吧
+    public static CompletableFuture<TransactionResult> postInquiryAsync(Inquiry inquiry,
+            int minRequiredQuotes, long timeoutMs) {
+        CompletableFuture<List<PreliminaryQuote>> quotesFuture = CompletableFuture.supplyAsync(
+                () -> initiateInquiry(inquiry, minRequiredQuotes, timeoutMs), INQUIRY_EXECUTOR);
+        CompletableFuture<Optional<PreliminaryQuote>> bestQuoteFuture = quotesFuture.thenApplyAsync(
+                quotes -> selectBestSeller(inquiry, quotes), INQUIRY_EXECUTOR);
 
-        if (result == TransactionResult.PARTIAL_SUCCESS) {
-            return postInquiry(new Inquiry(inquiry.buyer(), inquiry.targetItem(),
-                    inquiry.targetAmount() - selectedQuote.getAvailableAmount())) == TransactionResult.SUCCESS
-                    ? TransactionResult.SUCCESS : TransactionResult.PARTIAL_SUCCESS;
-        }
-        return result;
+        return bestQuoteFuture.thenComposeAsync(bestQuote -> {
+            if (bestQuote.isEmpty()) {
+                LOGGER.warn("No suitable seller found for inquiry: {}", inquiry);
+                return CompletableFuture.completedFuture(TransactionResult.FAIL);
+            }
+
+            PreliminaryQuote selectedQuote = bestQuote.get();
+            TransactionResult result = generateTransaction(inquiry, selectedQuote);
+            LOGGER.debug("Transaction result: {}", result);
+
+            if (result == TransactionResult.PARTIAL_SUCCESS) {
+                Inquiry remainingInquiry = new Inquiry(inquiry.buyer(), inquiry.targetItem(),
+                        inquiry.targetAmount() - selectedQuote.getAvailableAmount());
+
+                return postInquiryAsync(remainingInquiry, minRequiredQuotes, timeoutMs).thenApply(
+                        recursiveResult -> recursiveResult == TransactionResult.SUCCESS
+                                ? TransactionResult.SUCCESS : TransactionResult.PARTIAL_SUCCESS);
+            }
+            return CompletableFuture.completedFuture(result);
+        }, INQUIRY_EXECUTOR);
     }
 
     /**

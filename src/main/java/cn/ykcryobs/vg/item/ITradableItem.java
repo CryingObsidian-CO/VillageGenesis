@@ -1,6 +1,6 @@
 package cn.ykcryobs.vg.item;
 
-import cn.ykcryobs.vg.villageSystem.currency.ResourceType;
+import cn.ykcryobs.vg.villageSystem.economy.ResourceType;
 
 /**
  * 可交易物品接口

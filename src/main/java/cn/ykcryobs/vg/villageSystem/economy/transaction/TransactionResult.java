@@ -1,4 +1,4 @@
-package cn.ykcryobs.vg.villageSystem.currency.transaction;
+package cn.ykcryobs.vg.villageSystem.economy.transaction;
 
 /**
  * 交易结果枚举

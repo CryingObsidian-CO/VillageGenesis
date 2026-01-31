@@ -35,7 +35,6 @@ public class BoundaryScepterItem extends Item {
         ItemStack stack = player.getItemInHand(usedHand);
         if (BoundaryScepterComponent.hasBoundedVillage(stack)) {
             if (level.isClientSide() && usedHand == InteractionHand.MAIN_HAND) {
-                // NOTE 客户端处理：触发粒子渲染
                 ClientParticleEvents.toggleParticleRender();
                 return InteractionResultHolder.success(stack);
             }

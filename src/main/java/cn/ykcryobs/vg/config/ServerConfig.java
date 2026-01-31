@@ -16,6 +16,7 @@ public class ServerConfig {
 
     public static final ModConfigSpec.IntValue durabilityThresholdToNeedMaintenance;
 
+    public static final ModConfigSpec.IntValue transactionThreadCount;
     public static final ModConfigSpec.IntValue minFactor;
     public static final ModConfigSpec.IntValue maxFactor;
 
@@ -31,6 +32,8 @@ public class ServerConfig {
         ConfigUtils.endCategory(builder);
 
         ConfigUtils.defineCategory(builder, "economy");
+        transactionThreadCount = ConfigUtils.defineInt(builder, "transactionThreadCount", 4, 1, 100,
+                "The thread count for transaction.");
         minFactor = ConfigUtils.defineInt(builder, "minFactor", 0, 0, 1, "The minimum factor in economy.");
         maxFactor = ConfigUtils.defineInt(builder, "maxFactor", 5, 1, 100, "The maximum factor in economy.");
         ConfigUtils.endCategory(builder);

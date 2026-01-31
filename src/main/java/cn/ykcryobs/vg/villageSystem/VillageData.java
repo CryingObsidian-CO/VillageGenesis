@@ -1,8 +1,10 @@
 package cn.ykcryobs.vg.villageSystem;
 
 import cn.ykcryobs.vg.VillageGenesis;
+import cn.ykcryobs.vg.event.VillageNewLevelEvent;
+import cn.ykcryobs.vg.event.VillageNewStageEvent;
 import cn.ykcryobs.vg.utils.BoundingBox2D;
-import cn.ykcryobs.vg.villageSystem.currency.VillageEconomyData;
+import cn.ykcryobs.vg.villageSystem.economy.VillageEconomyData;
 import cn.ykcryobs.vg.villageSystem.facility.FacilityManager;
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
@@ -15,6 +17,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.biome.Biome;
+import net.neoforged.bus.api.IEventBus;
 import org.slf4j.Logger;
 
 import java.util.HashSet;
@@ -30,6 +33,9 @@ import javax.annotation.Nullable;
 public class VillageData {
 
     private static final Logger LOGGER = LogUtils.getLogger();
+
+    private static IEventBus eventBus;
+
     // 村庄唯一标识符
     private UUID villageId;
     // 村庄名称
@@ -143,6 +149,10 @@ public class VillageData {
         return villageData;
     }
 
+    public static void register(IEventBus eventBus) {
+        VillageData.eventBus = eventBus;
+    }
+
     /**
      * 获取村庄ID
      *
@@ -189,7 +199,7 @@ public class VillageData {
         this.villageLevel = Math.max(1, villageLevel);
         this.getRequiredExpForNextLevel(true);
         this.evolutionStage = VillageEvolutionStage.getEvolutionStage(this.villageLevel);
-        this.markDirty();
+        eventBus.post(new VillageNewLevelEvent(this.villageId, this.villageLevel));
     }
 
     /**
@@ -221,7 +231,7 @@ public class VillageData {
             this.evolutionStage = VillageEvolutionStage.getEvolutionStage(this.villageLevel);
 
             if (oldStage != this.evolutionStage) {
-                // TODO 触发阶段变化事件
+                eventBus.post(new VillageNewStageEvent(this.villageId, this.evolutionStage));
                 LOGGER.info("Village {} (ID: {}) evolved from {} to {}", this.villageName.getString(),
                         this.villageId, oldStage.getDisplayName().getString(),
                         this.evolutionStage.getDisplayName().getString());
@@ -239,7 +249,7 @@ public class VillageData {
     }
 
     /**
-     * 获取下一级所需经验值）
+     * 获取下一级所需经验值
      *
      * @return 下一级所需经验值
      */
@@ -436,7 +446,6 @@ public class VillageData {
     /**
      * 标记数据为脏数据，需要保存
      */
-    // markDirty (特别是对于 tick 这类高频方法是否添加 markDirty 或者干脆单独把他们 saveData)
     private void markDirty() {
         this.lastUpdateTime = VillageGenesis.getGameTime();
         VillageManager.markDirty();

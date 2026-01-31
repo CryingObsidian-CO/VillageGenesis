@@ -1,6 +1,6 @@
-package cn.ykcryobs.vg.villageSystem.currency.payment;
+package cn.ykcryobs.vg.villageSystem.economy.payment;
 
-import cn.ykcryobs.vg.villageSystem.currency.ITrader;
+import cn.ykcryobs.vg.villageSystem.economy.ITrader;
 
 /**
  * 支付接口 用于表示交易中的支付方式和支付者

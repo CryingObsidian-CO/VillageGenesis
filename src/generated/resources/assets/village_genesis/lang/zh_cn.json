@@ -1,5 +1,6 @@
 {
   "block.village_genesis.village_info_panel": "村庄信息面板",
+  "commands.village_genesis.economy.invalidTrader": "无效的交易对象 : %s",
   "gui.village_genesis.close": "关闭",
   "gui.village_genesis.info_category.basic_info": "基本信息",
   "gui.village_genesis.info_category.facility_list": "设施列表",

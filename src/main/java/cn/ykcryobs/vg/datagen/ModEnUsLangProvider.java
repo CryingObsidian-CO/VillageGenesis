@@ -74,6 +74,9 @@ public class ModEnUsLangProvider extends LanguageProvider {
         add("village.village_genesis.status.declining", "Declining");
         add("village.village_genesis.status.abandoned", "Abandoned");
 
+        // commands
+        add("commands.village_genesis.economy.invalidTrader", "Invalid Trader : %s");
+
         // GUI translations for Village Info Panel
         add("gui.village_genesis.village_info_title", "Village Info Panel");
         add("gui.village_genesis.close", "Close");

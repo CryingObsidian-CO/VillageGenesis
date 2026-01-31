@@ -72,6 +72,9 @@ public class ModZhCnLangProvider extends LanguageProvider {
         add("village.village_genesis.status.declining", "衰退中");
         add("village.village_genesis.status.abandoned", "废弃");
 
+        // commands
+        add("commands.village_genesis.economy.invalidTrader", "无效的交易对象 : %s");
+
         // GUI translations for Village Info Panel
         add("gui.village_genesis.village_info_title", "村庄信息面板");
         add("gui.village_genesis.close", "关闭");

@@ -1,8 +1,8 @@
-package cn.ykcryobs.vg.villageSystem.currency;
+package cn.ykcryobs.vg.villageSystem.economy;
 
 import cn.ykcryobs.vg.villageSystem.VillageData;
 import cn.ykcryobs.vg.villageSystem.VillageManager;
-import cn.ykcryobs.vg.villageSystem.currency.payment.PaymentMethod;
+import cn.ykcryobs.vg.villageSystem.economy.payment.PaymentMethod;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 

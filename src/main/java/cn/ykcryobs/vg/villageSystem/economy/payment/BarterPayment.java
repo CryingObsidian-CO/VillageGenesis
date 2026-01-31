@@ -1,6 +1,6 @@
-package cn.ykcryobs.vg.villageSystem.currency.payment;
+package cn.ykcryobs.vg.villageSystem.economy.payment;
 
-import cn.ykcryobs.vg.villageSystem.currency.ITrader;
+import cn.ykcryobs.vg.villageSystem.economy.ITrader;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 

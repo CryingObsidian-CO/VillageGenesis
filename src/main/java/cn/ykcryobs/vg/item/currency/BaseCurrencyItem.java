@@ -2,7 +2,7 @@ package cn.ykcryobs.vg.item.currency;
 
 import cn.ykcryobs.vg.dataComponents.CurrencyDataComponent;
 import cn.ykcryobs.vg.init.ModDataComponents;
-import cn.ykcryobs.vg.villageSystem.currency.CurrencyType;
+import cn.ykcryobs.vg.villageSystem.economy.CurrencyType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
