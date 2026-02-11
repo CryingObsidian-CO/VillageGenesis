@@ -10,9 +10,10 @@ import cn.ykcryobs.vg.init.ModDataComponents;
 import cn.ykcryobs.vg.init.ModItems;
 import cn.ykcryobs.vg.init.ModStructurePoolRegistries;
 import cn.ykcryobs.vg.villageSystem.VillageData;
-import cn.ykcryobs.vg.villageSystem.economy.TransactionManager;
+import cn.ykcryobs.vg.villageSystem.economy.transaction.TransactionManager;
 import com.mojang.logging.LogUtils;
 import net.minecraft.server.level.ServerLevel;
+import net.neoforged.bus.api.Event;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
@@ -37,7 +38,8 @@ public class VillageGenesis {
     // Directly reference a slf4j logger
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    public static ServerLevel level;
+    private static ServerLevel level;
+    private static IEventBus eventBus;
 
     // The constructor for the mod class is the first code that is run when your mod is loaded.
     // FML will recognize some parameter types like IEventBus or ModContainer and pass them in automatically.
@@ -55,8 +57,8 @@ public class VillageGenesis {
         ModItems.register(modEventBus);
         ModStructurePoolRegistries.register(modEventBus);
 
-        TransactionManager.register(modEventBus);
         VillageData.register(modEventBus);
+        eventBus = modEventBus;
     }
 
 
@@ -84,6 +86,19 @@ public class VillageGenesis {
             throw new IllegalStateException("Level is not set!");
         }
         return level;
+    }
+
+    /**
+     * 获取事件总线实例
+     *
+     * @return 事件总线实例
+     */
+    public static IEventBus getEventBus() {
+        return eventBus;
+    }
+
+    public static <T extends Event> void postEvent(T event) {
+        eventBus.post(event);
     }
 
     @SubscribeEvent

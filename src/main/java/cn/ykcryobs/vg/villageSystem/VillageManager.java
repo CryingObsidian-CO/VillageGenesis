@@ -1,6 +1,8 @@
 package cn.ykcryobs.vg.villageSystem;
 
+import cn.ykcryobs.vg.item.ITradableItem;
 import cn.ykcryobs.vg.utils.BoundingBox2D;
+import cn.ykcryobs.vg.villageSystem.economy.trader.ITrader;
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -9,17 +11,19 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.saveddata.SavedData;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -30,6 +34,8 @@ import java.util.UUID;
 public class VillageManager extends SavedData {
 
     protected static final Map<UUID, VillageData> villageMap = new HashMap<>();
+    // TODO 这个要不要持久化
+    private static final Map<Integer, Set<ITrader>> commodityMap = new HashMap<>();
     private static final RandomSource RANDOM = RandomSource.create();
     private static final VillageManager INSTANCE = new VillageManager();
     private static final Logger LOGGER = LogUtils.getLogger();
@@ -44,8 +50,8 @@ public class VillageManager extends SavedData {
      *
      * @return 所有村庄的数据列表
      */
-    public static List<VillageData> getAllVillages() {
-        return new ArrayList<>(villageMap.values());
+    public static Set<VillageData> getAllVillages() {
+        return Set.copyOf(villageMap.values());
     }
 
     /**
@@ -53,9 +59,35 @@ public class VillageManager extends SavedData {
      *
      * @return 所有村庄的UUID列表
      */
-    public static List<UUID> getAllVillageIds() {
-        return new ArrayList<>(villageMap.keySet());
+    public static Set<UUID> getAllVillageIds() {
+        return Set.copyOf(villageMap.keySet());
     }
+
+    /**
+     * 添加一个商品的交易商
+     *
+     * @param item   商品
+     * @param trader 交易商
+     */
+    public static boolean addCommodityMap(Item item, ITrader trader) {
+        if (((ITradableItem) item).isTradable()) {
+            commodityMap.computeIfAbsent(Item.getId(item), k -> new HashSet<>()).add(trader);
+            return true;
+        }
+        LOGGER.error("VillageManager: try to add an untradable item {} to commodity map", item);
+        return false;
+    }
+
+    /**
+     * 获取一个商品的交易商列表
+     *
+     * @param item 商品
+     * @return 交易商列表
+     */
+    public static Set<ITrader> findItemSeller(Item item) {
+        return Collections.unmodifiableSet(commodityMap.getOrDefault(Item.getId(item), Set.of()));
+    }
+
 
     /**
      * 注册一个村庄
@@ -93,6 +125,10 @@ public class VillageManager extends SavedData {
      * @return 是否存在
      */
     public static boolean isVillageExist(UUID id) {
+        if (id == null) {
+            LOGGER.warn("VillageManager: 尝试获取空ID的村庄数据类");
+            return false;
+        }
         if (!VillageManager.villageMap.containsKey(id)) {
             LOGGER.warn("VillageManager: 未找到村庄数据类，ID：{}", id);
             return false;

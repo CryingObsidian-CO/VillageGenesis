@@ -5,6 +5,7 @@
   "mixins": [
     "AbstractVillagerMixin",
     "ChunkGeneratorMixin",
+    "ItemMixin",
     "VillagerMixin"
   ],
   "injectors": {

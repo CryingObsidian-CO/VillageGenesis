@@ -1,7 +1,9 @@
-package cn.ykcryobs.vg.villageSystem.economy;
+package cn.ykcryobs.vg.villageSystem.economy.trader;
 
+import cn.ykcryobs.vg.item.ITradableItem;
 import cn.ykcryobs.vg.villageSystem.VillageData;
 import cn.ykcryobs.vg.villageSystem.VillageManager;
+import cn.ykcryobs.vg.villageSystem.economy.VillageEconomyData;
 import cn.ykcryobs.vg.villageSystem.economy.payment.PaymentMethod;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -43,12 +45,35 @@ public interface ITrader {
     }
 
     /**
+     * 获取物品的单价工时
+     *
+     * @param item 物品
+     * @return 物品的单价工时
+     */
+    float getUnitWorkPoint(ITradableItem item);
+
+
+    /**
+     * 获取指定物品的可用数量
+     *
+     * @param item 物品
+     * @return 可用数量
+     */
+    int getAvailableItemCount(ITradableItem item);
+
+    /**
      * 检查是否有足够的物品
      *
      * @param itemStack 物品栈
      * @return 是否有足够的物品
      */
-    boolean hasEnough(ItemStack itemStack);
+    default boolean hasEnough(ItemStack itemStack) {
+        ITradableItem tradableItem = (ITradableItem) itemStack.getItem();
+        if (tradableItem.isTradable()) {
+            return getAvailableItemCount(tradableItem) >= itemStack.getCount();
+        }
+        return false;
+    }
 
     /**
      * 扣除物品
@@ -65,25 +90,26 @@ public interface ITrader {
     void addItem(ItemStack itemStack);
 
     /**
-     * 获取交易协商等级
-     *
-     * @return 交易协商等级
-     */
-    default int getNegotiationLevel() {
-        return 1;
-    }
-
-    /**
-     * 物品的偏好系数列表
-     *
-     * @return 物品的偏好系数列表
-     */
-    Map<Item, Float> getPreferenceMultiplier();
-
-    /**
      * 获取支持的支付方式
      *
      * @return 支持的支付方式
      */
     Set<PaymentMethod> getSupportedPaymentMethods();
+
+    /**
+     * 获取物品偏好修正系数
+     *
+     * @return 物品偏好修正系数
+     */
+    Map<Item, Float> getPreferenceMultiplier();
+
+    /**
+     * 获取交易者的协商能力等级
+     *
+     * @return 协商能力等级
+     */
+    default int getNegotiationLevel() {
+        return 0;
+    }
+
 }

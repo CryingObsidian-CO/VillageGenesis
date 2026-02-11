@@ -1,0 +1,9 @@
+{
+  "replace": true,
+  "values": {
+    "minecraft:apple": {
+      "resourceType": "food",
+      "workPoint": 0.5
+    }
+  }
+}

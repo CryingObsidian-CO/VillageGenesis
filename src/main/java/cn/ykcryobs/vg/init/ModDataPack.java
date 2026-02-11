@@ -22,7 +22,7 @@ public class ModDataPack {
             ResourceLocation.fromNamespaceAndPath(VillageGenesis.MOD_ID, "village/facilities"));
 
     @SubscribeEvent
-    static void registerDataPackRegistry(DataPackRegistryEvent.NewRegistry event) {
+    private static void registerDataPackRegistry(DataPackRegistryEvent.NewRegistry event) {
         event.dataPackRegistry(FACILITY_REGISTRY_KEY, FacilityType.FacilityTypeCodec.DISPATCH_CODEC,
                 FacilityType.FacilityTypeCodec.DISPATCH_CODEC);
 //        NOTE 涉及同步嘛（第三个参数是否为 null）

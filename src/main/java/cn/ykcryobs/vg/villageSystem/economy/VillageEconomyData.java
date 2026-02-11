@@ -3,6 +3,7 @@ package cn.ykcryobs.vg.villageSystem.economy;
 import cn.ykcryobs.vg.config.ServerConfig;
 import cn.ykcryobs.vg.item.ITradableItem;
 import cn.ykcryobs.vg.villageSystem.VillageManager;
+import cn.ykcryobs.vg.villageSystem.economy.market.ResourceType;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -37,12 +38,11 @@ public class VillageEconomyData {
      * @param item 物品
      * @return 因子值
      */
-    public float getFactorForItem(Item item) {
-        if (item instanceof ITradableItem tradableItem) {
-            return supplyDemandFactors.get(tradableItem.getResourceType());
-        } else {
-            return extraSupplyDemandFactors.getOrDefault(item, 1.0f);
+    public float getFactorFromItem(ITradableItem item) {
+        if (item.getResourceType() == ResourceType.NONE) {
+            return extraSupplyDemandFactors.getOrDefault((Item) item, 1.0f);
         }
+        return supplyDemandFactors.get(item.getResourceType());
     }
 
     /**
@@ -103,17 +103,16 @@ public class VillageEconomyData {
      * @param extraSupply 额外供给
      * @param extraDemand 额外需求
      */
-    private void setExtraSupplyDemand(Item item, int extraSupply, int extraDemand) {
-        if (item instanceof ITradableItem ITradableItem) {
-            this.setSupplyDemand(ITradableItem.getResourceType(), extraSupply, extraDemand);
-            return;
+    private void setExtraSupplyDemand(ITradableItem item, int extraSupply, int extraDemand) {
+        if (item.getResourceType() == ResourceType.NONE) {
+            extraSupplyDemand.put((Item) item, new Pair<>(extraSupply, extraDemand));
+            calculateFactor((Item) item);
         }
-        extraSupplyDemand.put(item, new Pair<>(extraSupply, extraDemand));
-        calculateFactor(item);
+        this.setSupplyDemand(item.getResourceType(), extraSupply, extraDemand);
     }
 
     /**
-     * 添加供给
+     * 添加供给 你可以使用 {@link #addExtraSupply(Item, int)} 如果你不确定物品是否有对应的资源类型
      *
      * @param resourceType 资源类型
      * @param delta        供给增量
@@ -124,7 +123,7 @@ public class VillageEconomyData {
     }
 
     /**
-     * 添加需求
+     * 添加需求 你可以使用 {@link #addExtraDemand(Item, int)} 如果你不确定物品是否有对应的资源类型
      *
      * @param resourceType 资源类型
      * @param delta        需求增量
@@ -141,13 +140,11 @@ public class VillageEconomyData {
      * @param delta 供给增量
      */
     public void addExtraSupply(Item item, int delta) {
-        if (item instanceof ITradableItem ITradableItem) {
-            this.addSupply(ITradableItem.getResourceType(), delta);
-            return;
+        if (((ITradableItem) item).isTradable()) {
+            Pair<Integer, Integer> extraSupplyDemandPair = extraSupplyDemand.get(item);
+            setExtraSupplyDemand((ITradableItem) item, extraSupplyDemandPair.getFirst() + delta,
+                    extraSupplyDemandPair.getSecond());
         }
-        Pair<Integer, Integer> extraSupplyDemandPair = extraSupplyDemand.get(item);
-        setExtraSupplyDemand(item, extraSupplyDemandPair.getFirst() + delta,
-                extraSupplyDemandPair.getSecond());
     }
 
     /**
@@ -157,13 +154,11 @@ public class VillageEconomyData {
      * @param delta 需求增量
      */
     public void addExtraDemand(Item item, int delta) {
-        if (item instanceof ITradableItem ITradableItem) {
-            this.addDemand(ITradableItem.getResourceType(), delta);
-            return;
+        if (((ITradableItem) item).isTradable()) {
+            Pair<Integer, Integer> extraSupplyDemandPair = extraSupplyDemand.get(item);
+            setExtraSupplyDemand((ITradableItem) item, extraSupplyDemandPair.getFirst(),
+                    extraSupplyDemandPair.getSecond() + delta);
         }
-        Pair<Integer, Integer> extraSupplyDemandPair = extraSupplyDemand.get(item);
-        setExtraSupplyDemand(item, extraSupplyDemandPair.getFirst(),
-                extraSupplyDemandPair.getSecond() + delta);
     }
 
     public CompoundTag serializeNBT() {
@@ -210,7 +205,7 @@ public class VillageEconomyData {
                 Item item = Item.byId(extraSupplyDemandTag.getInt("item"));
                 int supply = extraSupplyDemandTag.getInt("supply");
                 int demand = extraSupplyDemandTag.getInt("demand");
-                setExtraSupplyDemand(item, supply, demand);
+                setExtraSupplyDemand((ITradableItem) item, supply, demand);
             }
         }
     }

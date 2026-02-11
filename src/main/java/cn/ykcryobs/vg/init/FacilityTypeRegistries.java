@@ -15,7 +15,7 @@ import net.neoforged.neoforge.registries.DataPackRegistryEvent;
 public class FacilityTypeRegistries {
 
     @SubscribeEvent
-    public static void registerCodec(DataPackRegistryEvent.NewRegistry event) {
+    private static void registerCodec(DataPackRegistryEvent.NewRegistry event) {
         FacilityType.FacilityTypeCodec.registerCodec("thatched_hut", ThatchedHutType.CODEC);
         FacilityType.FacilityTypeCodec.registerCodec("village_center", VillageCenterType.CODEC);
     }

@@ -1,9 +1,10 @@
 package cn.ykcryobs.vg.villageSystem.economy.payment;
 
-import cn.ykcryobs.vg.villageSystem.economy.ITrader;
+import cn.ykcryobs.vg.villageSystem.economy.trader.ITrader;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -48,13 +49,13 @@ public class BarterPayment implements IPayment {
     }
 
     @Override
-    public void createPayment(ITrader payer, ITrader payee, float totalWorkPoint) {
+    public boolean createPayment(ITrader payer, ITrader payee, float totalWorkPoint) {
         this.workPoint = totalWorkPoint;
-        Set<Item> barterItems = payer.getPreferenceMultiplier().keySet();
-        barterItems.addAll(payee.getPreferenceMultiplier().keySet());
-        if (barterItems.isEmpty()) {
-            return;
+        Set<Item> barterItems = new HashSet<>(payer.getPreferenceMultiplier().keySet());
+        if (barterItems.isEmpty() && payee.getPreferenceMultiplier().isEmpty()) {
+            return false;
         }
+        barterItems.addAll(payee.getPreferenceMultiplier().keySet());
 
         double maxScore = Double.MIN_VALUE;
         Item maxItem = null;
@@ -92,5 +93,7 @@ public class BarterPayment implements IPayment {
                 barterItem = new ItemStack(maxItem, requiredBarterCount);
             }
         }
+
+        return barterItem != null && !barterItem.isEmpty();
     }
 }

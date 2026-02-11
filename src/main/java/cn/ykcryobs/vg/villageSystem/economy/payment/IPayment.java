@@ -1,6 +1,6 @@
 package cn.ykcryobs.vg.villageSystem.economy.payment;
 
-import cn.ykcryobs.vg.villageSystem.economy.ITrader;
+import cn.ykcryobs.vg.villageSystem.economy.trader.ITrader;
 
 /**
  * 支付接口 用于表示交易中的支付方式和支付者
@@ -52,6 +52,7 @@ public interface IPayment {
      * @param payer          支付方（买方）
      * @param payee          收款方（卖方）
      * @param totalWorkPoint 支付的工分总价值
+     * @return true=初始化成功，false=初始化失败
      */
-    void createPayment(ITrader payer, ITrader payee, float totalWorkPoint);
+    boolean createPayment(ITrader payer, ITrader payee, float totalWorkPoint);
 }

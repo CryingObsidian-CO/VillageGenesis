@@ -3,6 +3,7 @@ package cn.ykcryobs.vg;
 import cn.ykcryobs.vg.datagen.ModBlockLootTablesProvider;
 import cn.ykcryobs.vg.datagen.ModBlockStatesProvider;
 import cn.ykcryobs.vg.datagen.ModBlockTagsProvider;
+import cn.ykcryobs.vg.datagen.ModDataMapProvider;
 import cn.ykcryobs.vg.datagen.ModEnUsLangProvider;
 import cn.ykcryobs.vg.datagen.ModFacilityDataProvider;
 import cn.ykcryobs.vg.datagen.ModFacilityLevelDataProvider;
@@ -37,7 +38,7 @@ import java.util.concurrent.CompletableFuture;
 public class ModDataGenerator {
 
     @SubscribeEvent
-    public static void gatherData(GatherDataEvent event) {
+    private static void gatherData(GatherDataEvent event) {
         DataGenerator generator = event.getGenerator();
         PackOutput packOutput = generator.getPackOutput();
         ExistingFileHelper fileHelper = event.getExistingFileHelper();
@@ -56,6 +57,7 @@ public class ModDataGenerator {
         generator.addProvider(event.includeServer(),
                 new DatapackBuiltinEntriesProvider(packOutput, lookupProvider,
                         ModWordGenProvider.getWorldGenBuilder(), Set.of("minecraft")));
+        generator.addProvider(event.includeServer(), new ModDataMapProvider(packOutput, lookupProvider));
         generator.addProvider(event.includeServer(),
                 new ModFacilityDataProvider(packOutput, VillageGenesis.MOD_ID));
         generator.addProvider(event.includeServer(),

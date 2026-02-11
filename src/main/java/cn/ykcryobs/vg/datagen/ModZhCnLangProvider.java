@@ -73,7 +73,29 @@ public class ModZhCnLangProvider extends LanguageProvider {
         add("village.village_genesis.status.abandoned", "废弃");
 
         // commands
-        add("commands.village_genesis.economy.invalidTrader", "无效的交易对象 : %s");
+        add("commands.village_genesis.transaction.invalidTrader", "无效的交易对象 : %s");
+        add("commands.village_genesis.transaction.releaseProduct.success", "%s 成功发布物品 %s");
+        add("commands.village_genesis.transaction.releaseProduct.invalid_item",
+                "%s 无法发布物品 %s（不是可交易物品）");
+        add("commands.village_genesis.transaction.tryToBuy.successPost", "请求购买 %d 个 %s 给 %s");
+        add("commands.village_genesis.transaction.tryToBuy.success", "成功购买 %d 个 %s 给 %s");
+        add("commands.village_genesis.transaction.tryToBuy.partial_success",
+                "成功购买 %d 个 %s 给 %s（部分无法购买）");
+        add("commands.village_genesis.transaction.tryToBuy.fail", "购买 %d 个 %s 给 %s 失败（未知原因）");
+        add("commands.village_genesis.transaction.tryToBuy.no_seller", "购买 %d 个 %s 给 %s 失败（无卖家）");
+        add("commands.village_genesis.transaction.tryToBuy.insufficient_funds",
+                "购买 %d 个 %s 给 %s 失败（资金不足）");
+        add("commands.village_genesis.transaction.tryToBuy.no_payment_method",
+                "购买 %d 个 %s 给 %s 失败（无有效支付方式）");
+        add("commands.village_genesis.transaction.tryToBuy.invalid_item",
+                "购买 %d 个 %s 给 %s 失败（不是可交易的物品）");
+        add("commands.village_genesis.transaction.tryToBuy.cancelled", "购买 %d 个 %s 给 %s 已取消");
+
+        add("commands.village_genesis.evolutionStage.noVillageData", "村庄 %s 没有村庄数据");
+        add("commands.village_genesis.evolutionStage.update.success", "村庄 %s 演进阶段已刷新（%s）");
+        add("commands.village_genesis.evolutionStage.info", "村庄 %s 演进阶段 : %s");
+
+        add("commands.village_genesis.inventory.invalidVillager", "无效的村民 : %s");
 
         // GUI translations for Village Info Panel
         add("gui.village_genesis.village_info_title", "村庄信息面板");

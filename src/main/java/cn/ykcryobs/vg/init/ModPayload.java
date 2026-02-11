@@ -21,7 +21,7 @@ import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 public class ModPayload {
 
     @SubscribeEvent
-    public static void register(RegisterPayloadHandlersEvent event) {
+    private static void register(RegisterPayloadHandlersEvent event) {
         final PayloadRegistrar registrar = event.registrar("1").executesOn(HandlerThread.NETWORK);
 
         registrar.playBidirectional(VillageBaseInfoPayload.TYPE, VillageBaseInfoPayload.STREAM_CODEC,

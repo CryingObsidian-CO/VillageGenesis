@@ -3,8 +3,9 @@ package cn.ykcryobs.vg.villagerEnhance;
 import cn.ykcryobs.vg.VillageGenesis;
 import cn.ykcryobs.vg.config.ServerConfig;
 import cn.ykcryobs.vg.event.VillageNewStageEvent;
+import cn.ykcryobs.vg.item.ITradableItem;
 import cn.ykcryobs.vg.villageSystem.VillageData;
-import cn.ykcryobs.vg.villageSystem.economy.ITrader;
+import cn.ykcryobs.vg.villageSystem.VillageManager;
 import cn.ykcryobs.vg.villageSystem.economy.payment.PaymentMethod;
 import cn.ykcryobs.vg.villagerEnhance.state.StateManager;
 import net.minecraft.core.HolderLookup;
@@ -13,24 +14,19 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.SimpleContainer;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
-import java.lang.ref.WeakReference;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -40,11 +36,12 @@ import java.util.UUID;
  * @author llykff
  */
 @EventBusSubscriber(modid = VillageGenesis.MOD_ID)
-public class VillagerData implements INBTSerializable<CompoundTag>, ITrader {
+public class VillagerData implements INBTSerializable<CompoundTag> {
 
     private final Map<Item, Float> itemPreferences;
     private final Set<PaymentMethod> supportedPaymentMethods;
     private UUID villagerId;
+    @Nullable
     private UUID villageId;
 
     private int happiness = 20; // 幸福度：影响村民的幸福感
@@ -54,8 +51,6 @@ public class VillagerData implements INBTSerializable<CompoundTag>, ITrader {
     private int fatigue = 0; // 疲劳：过高会降低其他属性表现
     private int stress = 0; // 压力：过高会降低其他属性表现
     private StateManager stateManager; // 状态管理器
-
-    private transient WeakReference<Villager> attachedVillager;
 
     /**
      * 构造函数
@@ -78,55 +73,60 @@ public class VillagerData implements INBTSerializable<CompoundTag>, ITrader {
         VillageData villageData = event.getVillageData();
         Set<UUID> villagers = villageData.getVillagers();
         villagers.forEach(villagerId -> {
-            IVillageMixin villager = (IVillageMixin) level.getEntity(villagerId);
+            IVillagerMixin villager = (IVillagerMixin) level.getEntity(villagerId);
             if (villager == null) {
                 return;
             }
-            Optional<VillagerData> villagerDataOptional = villager.villageGenesis$getVillagerData();
-            if (villagerDataOptional.isPresent()) {
-                VillagerData villagerData = villagerDataOptional.get();
-                villagerData.supportedPaymentMethods.clear();
-                switch (event.getStage()) {
-                    case PRIMITIVE -> {
-                        villagerData.supportedPaymentMethods.add(PaymentMethod.BARTER);
-                    }
-                    case AGRICULTURAL -> {
-                        villagerData.supportedPaymentMethods.add(PaymentMethod.BARTER);
-                        villagerData.supportedPaymentMethods.add(PaymentMethod.COMMODITY_PAYMENT);
-                    }
-                    case HANDICRAFT -> {
-                        villagerData.supportedPaymentMethods.add(PaymentMethod.BARTER);
-                        villagerData.supportedPaymentMethods.add(PaymentMethod.COMMODITY_PAYMENT);
-                        villagerData.supportedPaymentMethods.add(PaymentMethod.METAL_PAYMENT);
-                        villagerData.supportedPaymentMethods.add(PaymentMethod.MIXED_PAYMENT);
-                    }
-                    case COMMERCIAL -> {
-                        villagerData.supportedPaymentMethods.add(PaymentMethod.BARTER);
-                        villagerData.supportedPaymentMethods.add(PaymentMethod.COMMODITY_PAYMENT);
-                        villagerData.supportedPaymentMethods.add(PaymentMethod.METAL_PAYMENT);
-                        villagerData.supportedPaymentMethods.add(PaymentMethod.PAPER_PAYMENT);
-                        villagerData.supportedPaymentMethods.add(PaymentMethod.MIXED_PAYMENT);
-                    }
-                    case INDUSTRIAL -> {
-                        villagerData.supportedPaymentMethods.add(PaymentMethod.BARTER);
-                        villagerData.supportedPaymentMethods.add(PaymentMethod.COMMODITY_PAYMENT);
-                        villagerData.supportedPaymentMethods.add(PaymentMethod.METAL_PAYMENT);
-                        villagerData.supportedPaymentMethods.add(PaymentMethod.PAPER_PAYMENT);
-                        villagerData.supportedPaymentMethods.add(PaymentMethod.ELECTRONIC_PAYMENT);
-                        villagerData.supportedPaymentMethods.add(PaymentMethod.MIXED_PAYMENT);
-                    }
-                }
-            }
+
+            VillagerData villagerData = villager.villageGenesis$getVillagerData();
+            updatePaymentFormStage(villagerData, event.getStage());
         });
 
 
+    }
+
+    public static void updatePaymentFormStage(VillagerData villagerData,
+            VillageData.VillageEvolutionStage stage) {
+        villagerData.supportedPaymentMethods.clear();
+        switch (stage) {
+            case PRIMITIVE -> {
+                villagerData.supportedPaymentMethods.add(PaymentMethod.BARTER);
+            }
+            case AGRICULTURAL -> {
+                villagerData.supportedPaymentMethods.add(PaymentMethod.BARTER);
+                villagerData.supportedPaymentMethods.add(PaymentMethod.COMMODITY_PAYMENT);
+            }
+            case HANDICRAFT -> {
+                villagerData.supportedPaymentMethods.add(PaymentMethod.BARTER);
+                villagerData.supportedPaymentMethods.add(PaymentMethod.COMMODITY_PAYMENT);
+                villagerData.supportedPaymentMethods.add(PaymentMethod.METAL_PAYMENT);
+                villagerData.supportedPaymentMethods.add(PaymentMethod.MIXED_PAYMENT);
+            }
+            case COMMERCIAL -> {
+                villagerData.supportedPaymentMethods.add(PaymentMethod.BARTER);
+                villagerData.supportedPaymentMethods.add(PaymentMethod.COMMODITY_PAYMENT);
+                villagerData.supportedPaymentMethods.add(PaymentMethod.METAL_PAYMENT);
+                villagerData.supportedPaymentMethods.add(PaymentMethod.PAPER_PAYMENT);
+                villagerData.supportedPaymentMethods.add(PaymentMethod.MIXED_PAYMENT);
+            }
+            case INDUSTRIAL -> {
+                villagerData.supportedPaymentMethods.add(PaymentMethod.BARTER);
+                villagerData.supportedPaymentMethods.add(PaymentMethod.COMMODITY_PAYMENT);
+                villagerData.supportedPaymentMethods.add(PaymentMethod.METAL_PAYMENT);
+                villagerData.supportedPaymentMethods.add(PaymentMethod.PAPER_PAYMENT);
+                villagerData.supportedPaymentMethods.add(PaymentMethod.ELECTRONIC_PAYMENT);
+                villagerData.supportedPaymentMethods.add(PaymentMethod.MIXED_PAYMENT);
+            }
+        }
     }
 
     @Override
     public @UnknownNullability CompoundTag serializeNBT(HolderLookup.@NotNull Provider provider) {
         CompoundTag tag = new CompoundTag();
         tag.putUUID("villagerID", villagerId);
-        tag.putUUID("villageID", villageId);
+        if (villageId != null) {
+            tag.putUUID("villageID", villageId);
+        }
         tag.putInt("happiness", happiness);
         tag.putInt("loyalty", loyalty);
         tag.putInt("adaptability", adaptability);
@@ -159,7 +159,9 @@ public class VillagerData implements INBTSerializable<CompoundTag>, ITrader {
     @Override
     public void deserializeNBT(HolderLookup.@NotNull Provider provider, CompoundTag nbt) {
         villagerId = nbt.getUUID("villagerID");
-        villageId = nbt.getUUID("villageID");
+        if (nbt.contains("villageID")) {
+            villageId = nbt.getUUID("villageID");
+        }
         happiness = nbt.getInt("happiness");
         loyalty = nbt.getInt("loyalty");
         adaptability = nbt.getInt("adaptability");
@@ -197,15 +199,20 @@ public class VillagerData implements INBTSerializable<CompoundTag>, ITrader {
         }
     }
 
+    public void initVillagerData(Villager villager) {
+        this.villagerId = villager.getUUID();
+        VillageManager.getVillageData(villageId).ifPresent(villageData -> {
+            VillageData.VillageEvolutionStage stage = villageData.getEvolutionStage();
+            updatePaymentFormStage(this, stage);
+        });
+    }
+
     /**
      * 绑定村民到村庄
      *
-     * @param villager  村民
      * @param villageId 村庄ID
      */
-    public void bindVillage(Villager villager, UUID villageId) {
-        this.villagerId = villager.getUUID();
-        this.attachedVillager = new WeakReference<>(villager);
+    public void bindVillage(@Nullable UUID villageId) {
         this.villageId = villageId;
     }
 
@@ -214,34 +221,12 @@ public class VillagerData implements INBTSerializable<CompoundTag>, ITrader {
      *
      * @return 村庄ID
      */
-    public UUID getVillageId() {
+    public @Nullable UUID getVillageId() {
         return villageId;
     }
 
-    /**
-     * 重新建立村民引用
-     *
-     * @param level 世界实例
-     */
-    public void reestablishVillagerReference(Level level) {
-        if (this.villagerId == null || attachedVillager != null) {
-            return;
-        }
-        if (level instanceof ServerLevel serverLevel) {
-            Entity entity = serverLevel.getEntity(this.villagerId);
-            if (entity instanceof Villager villager) {
-                attachedVillager = new WeakReference<>(villager);
-            }
-        }
-    }
+    public void addItem(Item item) {
 
-    /**
-     * 获取绑定的村民
-     *
-     * @return 绑定的村民实例
-     */
-    public Optional<Villager> getAttachedVillager() {
-        return Optional.ofNullable(attachedVillager.get());
     }
 
     /**
@@ -266,6 +251,16 @@ public class VillagerData implements INBTSerializable<CompoundTag>, ITrader {
      * @param item 物品
      * @return 偏好值
      */
+    public float getPreference(ITradableItem item) {
+        return getPreference((Item) item);
+    }
+
+    /**
+     * 获取物品偏好
+     *
+     * @param item 物品
+     * @return 偏好值
+     */
     public float getPreference(Item item) {
         return itemPreferences.getOrDefault(item, 1f);
     }
@@ -277,6 +272,10 @@ public class VillagerData implements INBTSerializable<CompoundTag>, ITrader {
      */
     public Map<Item, Float> getItemPreferencesMap() {
         return Collections.unmodifiableMap(itemPreferences);
+    }
+
+    public Set<PaymentMethod> getSupportedPaymentMethods() {
+        return Collections.unmodifiableSet(supportedPaymentMethods);
     }
 
     /**
@@ -305,78 +304,4 @@ public class VillagerData implements INBTSerializable<CompoundTag>, ITrader {
     public void removeSupportedPaymentMethod(PaymentMethod paymentMethod) {
         supportedPaymentMethods.remove(paymentMethod);
     }
-
-    @Override
-    public UUID getTraderId() {
-        return this.villagerId;
-    }
-
-    @Override
-    public Optional<UUID> getVillageIdIfHasVillage() {
-        return Optional.of(villageId);
-    }
-
-    @Override
-    public boolean hasEnough(ItemStack itemStack) {
-        Optional<Villager> villagerOptional = this.getAttachedVillager();
-        if (villagerOptional.isEmpty()) {
-            return false;
-        }
-
-        SimpleContainer inventory = villagerOptional.get().getInventory();
-        int requiredCount = itemStack.getCount();
-        int foundCount = 0;
-        for (ItemStack inventoryStack : inventory.getItems()) {
-            if (ItemStack.isSameItem(inventoryStack, itemStack)) {
-                foundCount += inventoryStack.getCount();
-                if (foundCount >= requiredCount) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    @Override
-    public void removeItem(ItemStack itemStack) {
-        Optional<Villager> villagerOptional = this.getAttachedVillager();
-        if (villagerOptional.isEmpty()) {
-            return;
-        }
-
-        SimpleContainer inventory = villagerOptional.get().getInventory();
-        int remainingCount = itemStack.getCount();
-        for (ItemStack inventoryStack : inventory.getItems()) {
-            if (ItemStack.isSameItem(inventoryStack, itemStack)) {
-                int removeCount = Math.min(inventoryStack.getCount(), remainingCount);
-                inventoryStack.shrink(removeCount);
-                remainingCount -= removeCount;
-                if (remainingCount <= 0) {
-                    break;
-                }
-            }
-        }
-    }
-
-    @Override
-    public void addItem(ItemStack itemStack) {
-        Optional<Villager> villagerOptional = this.getAttachedVillager();
-        if (villagerOptional.isEmpty()) {
-            return;
-        }
-
-        SimpleContainer inventory = villagerOptional.get().getInventory();
-        inventory.addItem(itemStack.copy());
-    }
-
-    @Override
-    public Map<Item, Float> getPreferenceMultiplier() {
-        return getItemPreferencesMap();
-    }
-
-    @Override
-    public Set<PaymentMethod> getSupportedPaymentMethods() {
-        return Collections.unmodifiableSet(this.supportedPaymentMethods);
-    }
-
 }

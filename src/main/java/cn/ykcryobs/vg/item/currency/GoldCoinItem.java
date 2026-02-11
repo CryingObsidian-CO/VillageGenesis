@@ -1,6 +1,5 @@
 package cn.ykcryobs.vg.item.currency;
 
-import cn.ykcryobs.vg.villageSystem.economy.CurrencyType;
 import net.minecraft.world.item.Item;
 
 /**

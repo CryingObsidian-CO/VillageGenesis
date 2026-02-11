@@ -75,7 +75,34 @@ public class ModEnUsLangProvider extends LanguageProvider {
         add("village.village_genesis.status.abandoned", "Abandoned");
 
         // commands
-        add("commands.village_genesis.economy.invalidTrader", "Invalid Trader : %s");
+        add("commands.village_genesis.transaction.invalidTrader", "Invalid Trader : %s");
+        add("commands.village_genesis.transaction.releaseProduct.success",
+                "%s successfully released tradable item %s");
+        add("commands.village_genesis.transaction.releaseProduct.invalid_item",
+                "%s cannot release item %s (not tradable)");
+        add("commands.village_genesis.transaction.tryToBuy.successPost",
+                "Requesting to purchase %d %s for %s");
+        add("commands.village_genesis.transaction.tryToBuy.success", "Successfully purchased %d %s for %s");
+        add("commands.village_genesis.transaction.tryToBuy.partial_success",
+                "Successfully purchased %d %s for %s (partial purchase)");
+        add("commands.village_genesis.transaction.tryToBuy.fail",
+                "Purchase %d %s for %s failed (unknown reason)");
+        add("commands.village_genesis.transaction.tryToBuy.no_seller",
+                "Purchase %d %s for %s failed (no seller available)");
+        add("commands.village_genesis.transaction.tryToBuy.insufficient_funds",
+                "Purchase %d %s for %s failed (insufficient funds)");
+        add("commands.village_genesis.transaction.tryToBuy.no_payment_method",
+                "Purchase %d %s for %s failed (no valid payment method)");
+        add("commands.village_genesis.transaction.tryToBuy.invalid_item",
+                "Purchase %d %s for %s failed (not tradable)");
+        add("commands.village_genesis.transaction.tryToBuy.cancelled", "Purchase %d %s for %s cancelled");
+
+        add("commands.village_genesis.evolutionStage.noVillageData", "Village %s has no village data");
+        add("commands.village_genesis.evolutionStage.update.success",
+                "Village %s evolution stage is refreshed (%s)");
+        add("commands.village_genesis.evolutionStage.info", "Village %s evolution stage : %s");
+
+        add("commands.village_genesis.inventory.invalidVillager", "Invalid Villager : %s");
 
         // GUI translations for Village Info Panel
         add("gui.village_genesis.village_info_title", "Village Info Panel");

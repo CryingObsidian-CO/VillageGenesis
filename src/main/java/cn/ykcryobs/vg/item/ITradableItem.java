@@ -1,6 +1,6 @@
 package cn.ykcryobs.vg.item;
 
-import cn.ykcryobs.vg.villageSystem.economy.ResourceType;
+import cn.ykcryobs.vg.villageSystem.economy.market.ResourceType;
 
 /**
  * 可交易物品接口
@@ -9,6 +9,13 @@ import cn.ykcryobs.vg.villageSystem.economy.ResourceType;
  */
 // TODO 可以利用数据包更改
 public interface ITradableItem {
+
+    /**
+     * 是否可交易
+     *
+     * @return 是否可交易
+     */
+    boolean isTradable();
 
     /**
      * 获取物品的工分 工分用于计算物品的价值和交易效率
@@ -22,5 +29,7 @@ public interface ITradableItem {
      *
      * @return 物品的资源类型
      */
-    ResourceType getResourceType();
+    default ResourceType getResourceType() {
+        return ResourceType.NONE;
+    }
 }

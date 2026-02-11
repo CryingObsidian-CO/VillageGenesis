@@ -1,5 +1,7 @@
 package cn.ykcryobs.vg.villagerEnhance.profession;
 
+import cn.ykcryobs.vg.villageSystem.VillageManager;
+import cn.ykcryobs.vg.villageSystem.economy.trader.ITrader;
 import cn.ykcryobs.vg.villagerEnhance.VillagerData;
 import net.minecraft.world.entity.npc.VillagerProfession;
 import net.minecraft.world.item.Item;
@@ -25,4 +27,10 @@ public interface IProfessionEnhancement {
      */
     void addDefaultPreference();
 
+    /**
+     * 添加默认可交易商品 使用 VillageManager#addCommodityMap()
+     *
+     * @see VillageManager#addCommodityMap(Item, ITrader)
+     */
+    void addDefaultTradableItems();
 }

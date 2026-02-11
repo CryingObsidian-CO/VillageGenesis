@@ -22,7 +22,7 @@ public class ConfigEventListeners {
      * 监听配置重载事件
      */
     @SubscribeEvent
-    public static void onConfigReloading(ModConfigEvent.Reloading event) {
+    private static void onConfigReloading(ModConfigEvent.Reloading event) {
         ModConfig.Type type = event.getConfig().getType();
         switch (type) {
             case COMMON:
@@ -41,7 +41,7 @@ public class ConfigEventListeners {
      * 监听配置加载事件
      */
     @SubscribeEvent
-    public static void onConfigLoading(ModConfigEvent.Loading event) {
+    private static void onConfigLoading(ModConfigEvent.Loading event) {
         ModConfig.Type type = event.getConfig().getType();
         switch (type) {
             case COMMON:
