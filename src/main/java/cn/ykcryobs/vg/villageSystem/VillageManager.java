@@ -19,12 +19,12 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 村庄管理器
@@ -33,7 +33,7 @@ import java.util.UUID;
  */
 public class VillageManager extends SavedData {
 
-    protected static final Map<UUID, VillageData> villageMap = new HashMap<>();
+    protected static final Map<UUID, VillageData> villageMap = new ConcurrentHashMap<>();
     // TODO 这个要不要持久化
     private static final Map<Integer, Set<ITrader>> commodityMap = new HashMap<>();
     private static final RandomSource RANDOM = RandomSource.create();
