@@ -112,4 +112,14 @@ public interface ITrader {
         return 0;
     }
 
+    /**
+     * 创建交易者快照
+     *
+     * @param item 交易物品
+     * @return 交易者快照
+     */
+    default TraderSnapshot createSnapshot(ITradableItem item) {
+        return TraderSnapshot.fromTrader(this, item);
+    }
+
 }

@@ -1,6 +1,6 @@
 package cn.ykcryobs.vg.villageSystem.facility;
 
-import cn.ykcryobs.vg.init.ModDataPack;
+import cn.ykcryobs.vg.init.ModDataPackRegistries;
 import cn.ykcryobs.vg.villageSystem.VillageManager;
 import cn.ykcryobs.vg.villageSystem.facility.types.FacilityType;
 import cn.ykcryobs.vg.villageSystem.facility.types.interfaces.IFacilityCategory;
@@ -307,7 +307,7 @@ public class FacilityManager {
         this.positionToFacilityMap.clear();
 
         HolderLookup.RegistryLookup<FacilityType> facilityRegistry = provider.lookupOrThrow(
-                ModDataPack.FACILITY_REGISTRY_KEY);
+                ModDataPackRegistries.FACILITY_REGISTRY_KEY);
 
         ListTag facilitiesList = nbt.getList("facilities", Tag.TAG_COMPOUND);
         int loadedCount = 0;
@@ -315,7 +315,8 @@ public class FacilityManager {
             CompoundTag facilityTag = facilitiesList.getCompound(i);
             String typeName = facilityTag.getString("facilityType");
 
-            ResourceKey<FacilityType> resourceKey = ResourceKey.create(ModDataPack.FACILITY_REGISTRY_KEY,
+            ResourceKey<FacilityType> resourceKey = ResourceKey.create(
+                    ModDataPackRegistries.FACILITY_REGISTRY_KEY,
                     ResourceLocation.parse(typeName));
             Holder<FacilityType> facilityHolder = facilityRegistry.get(resourceKey).orElse(null);
 

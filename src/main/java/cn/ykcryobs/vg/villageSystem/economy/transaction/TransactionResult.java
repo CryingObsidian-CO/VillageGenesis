@@ -50,12 +50,28 @@ public enum TransactionResult {
     /**
      * 交易取消 - 用户主动取消
      */
-    CANCELLED;
+    CANCELLED,
+
+    /**
+     * 无贸易路线 - 村庄之间不存在用于村际贸易的贸易路线
+     */
+    NO_TRADE_ROUTE;
 
     /**
      * 交易结果包装类，用于在异步回调中传递结果和实际成交数量
      */
     public record TransactionResultWrapper(TransactionResult result, int actualAmount) {
 
+        public TransactionResultWrapper {
+            if ((result == TransactionResult.SUCCESS || result == TransactionResult.PARTIAL_SUCCESS)
+                    && actualAmount <= 0) {
+                throw new IllegalArgumentException(
+                        "actualAmount must be greater than 0 when result is SUCCESS or PARTIAL_SUCCESS");
+            }
+        }
+
+        public TransactionResultWrapper(TransactionResult result) {
+            this(result, 0);
+        }
     }
 }

@@ -1,6 +1,6 @@
 package cn.ykcryobs.vg.structures;
 
-import cn.ykcryobs.vg.init.ModDataPack;
+import cn.ykcryobs.vg.init.ModDataPackRegistries;
 import cn.ykcryobs.vg.init.ModStructurePoolRegistries;
 import cn.ykcryobs.vg.villageSystem.VillageData;
 import cn.ykcryobs.vg.villageSystem.VillageManager;
@@ -134,8 +134,9 @@ public class VillageStructurePoolElement extends SinglePoolElement {
         // 获取FacilityType
 
         HolderLookup.RegistryLookup<FacilityType> facilityRegistry = level.registryAccess()
-                .lookupOrThrow(ModDataPack.FACILITY_REGISTRY_KEY);
-        ResourceKey<FacilityType> resourceKey = ResourceKey.create(ModDataPack.FACILITY_REGISTRY_KEY,
+                .lookupOrThrow(ModDataPackRegistries.FACILITY_REGISTRY_KEY);
+        ResourceKey<FacilityType> resourceKey = ResourceKey.create(
+                ModDataPackRegistries.FACILITY_REGISTRY_KEY,
                 ResourceLocation.parse(facilityTypeName));
         Holder<FacilityType> facilityHolder = facilityRegistry.get(resourceKey).orElse(null);
         if (facilityHolder == null) {

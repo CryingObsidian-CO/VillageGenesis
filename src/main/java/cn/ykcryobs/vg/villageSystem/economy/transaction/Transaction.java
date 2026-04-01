@@ -11,6 +11,7 @@ import org.slf4j.Logger;
  *
  * @author llykff
  */
+// TODO 明确与税务系统的兼容
 public class Transaction {
 
     private static final Logger LOGGER = LogUtils.getLogger();
@@ -19,12 +20,29 @@ public class Transaction {
     private final ITrader seller;         // 卖方
     private final ItemStack tradeItem;   // 交易的商品
     private final IPayment payment;      // 支付方式
+    private final float taxRate;
+    private final float taxAmount;
 
-    public Transaction(ITrader buyer, ITrader seller, ItemStack stack, IPayment payment) {
+    public Transaction(ITrader buyer, ITrader seller, ItemStack stack, IPayment payment, float taxRate,
+            float taxAmount) {
         this.buyer = buyer;
         this.seller = seller;
         this.tradeItem = stack;
         this.payment = payment;
+        this.taxRate = taxRate;
+        this.taxAmount = taxAmount;
+    }
+
+    public Transaction(ITrader buyer, ITrader seller, ItemStack stack, IPayment payment) {
+        this(buyer, seller, stack, payment, 0f, 0f);
+    }
+
+    public float getTaxRate() {
+        return taxRate;
+    }
+
+    public float getTaxAmount() {
+        return taxAmount;
     }
 
     public TransactionResult execute() {

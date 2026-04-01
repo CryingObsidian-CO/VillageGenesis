@@ -2,6 +2,7 @@ package cn.ykcryobs.vg.init;
 
 import cn.ykcryobs.vg.VillageGenesis;
 import cn.ykcryobs.vg.villageSystem.VillageManager;
+import cn.ykcryobs.vg.villageSystem.interVillage.InterVillageManager;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -20,8 +21,12 @@ public class ModDataSave {
     @SubscribeEvent
     private static void register(ServerStartingEvent event) {
         ServerLevel overworld = event.getServer().overworld();
+        overworld.getDataStorage()
+                .computeIfAbsent(new SavedData.Factory<>(VillageManager::getInstance, VillageManager::load),
+                        "village_data");
+
         overworld.getDataStorage().computeIfAbsent(
-                new SavedData.Factory<>(VillageManager::getInstance, VillageManager::load),
-                "village_data");
+                new SavedData.Factory<>(InterVillageManager::getInstance, InterVillageManager::load),
+                "inter_village_data");
     }
 }

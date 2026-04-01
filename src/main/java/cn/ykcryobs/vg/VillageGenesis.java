@@ -12,6 +12,7 @@ import cn.ykcryobs.vg.init.ModStructurePoolRegistries;
 import cn.ykcryobs.vg.villageSystem.VillageData;
 import cn.ykcryobs.vg.villageSystem.economy.transaction.TransactionManager;
 import com.mojang.logging.LogUtils;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.neoforged.bus.api.Event;
 import net.neoforged.bus.api.IEventBus;
@@ -59,6 +60,17 @@ public class VillageGenesis {
 
         VillageData.register(modEventBus);
         eventBus = modEventBus;
+    }
+
+    /**
+     * 获取一个资源定位符（ResourceLocation）
+     *
+     * @param path 资源路径
+     * @return 对应的资源定位符
+     */
+    // TODO 把现有的 ResourceLocation.fromNamespaceAndPath 替换为这个方法
+    public static ResourceLocation getIdentifier(String path) {
+        return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
     }
 
 
